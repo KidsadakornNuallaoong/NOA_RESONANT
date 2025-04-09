@@ -1,0 +1,148 @@
+// app/pdpa.tsx
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import { useRouter, useLocalSearchParams, Stack } from "expo-router";
+import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+
+export default function PdpaScreen() {
+  const router = useRouter();
+  const { email } = useLocalSearchParams();
+  const [consentGiven, setConsentGiven] = useState(false);
+
+  const handleConfirm = () => {
+    if (consentGiven) {
+      router.push({
+        pathname: "/otp",
+        params: { email },
+      });
+    }
+  };
+
+  return (
+    <>
+      <Stack.Screen options={{ headerTitle: "PDPA Consent" }} />
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.paragraph}>
+            1.
+            วัตถุประสงค์ของการเก็บข้อมูลแอปพลิเคชันนี้เก็บรวบรวมข้อมูลเพื่อใช้ในการวิเคราะห์แรงสั่นสะเทือนของมอเตอร์
+            โดยข้อมูลที่เก็บจะถูกใช้เพื่อพัฒนาประสิทธิภาพของระบบ
+            และการวิจัยเท่านั้น
+            {"\n\n"}
+            2. ประเภทของข้อมูลที่เก็บรวบรวม
+            ข้อมูลเซนเซอร์เกี่ยวกับแรงสั่นสะเทือน ข้อมูลอุปกรณ์ เช่น
+            รุ่นของอุปกรณ์ ระบบปฏิบัติการ ข้อมูลที่ผู้ใช้งานให้โดยสมัครใจ เช่น
+            รายละเอียดการทดลอง
+            {"\n\n"}
+            3.การใช้งานและการเปิดเผยข้อมูลข้อมูลที่เก็บรวบรวมจะถูกใช้เฉพาะเพื่อวัตถุประสงค์ของการวิจัยและพัฒนาแอปเท่านั้น
+            โดยไม่มีการเปิดเผยต่อบุคคลภายนอก
+            เว้นแต่ได้รับความยินยอมจากผู้ใช้หรือเป็นไปตามข้อกำหนดทางกฎหมาย
+            {"\n\n"}
+            4.สิทธิของผู้ใช้ผู้ใช้มีสิทธิ์ในการ ขอเข้าถึง แก้ไข
+            หรือขอลบข้อมูลของตนเอง เพิกถอนความยินยอมในการเก็บข้อมูลได้ทุกเมื่อ
+            ร้องเรียนหากมีการใช้ข้อมูลผิดวัตถุประสงค์
+            {"\n\n"}
+            5.ระยะเวลาการเก็บรักษาข้อมูลข้อมูลจะถูกเก็บไว้เฉพาะระยะเวลาที่จำเป็นต่อการดำเนินการวิจัยเท่านั้น
+            และจะถูกลบอย่างปลอดภัยเมื่อสิ้นสุดการใช้งาน
+            {"\n\n"}
+            6.การรักษาความปลอดภัยของข้อมูลเราใช้มาตรการรักษาความปลอดภัยที่เหมาะสมเพื่อป้องกัน
+          </Text>
+        </View>
+
+        <View style={styles.checkContainer}>
+          <TouchableOpacity
+            style={styles.checkRow}
+            onPress={() => setConsentGiven(true)}
+          >
+            <Ionicons
+              name={consentGiven ? "checkmark-circle" : "ellipse-outline"}
+              size={22}
+              color={consentGiven ? "green" : "gray"}
+            />
+            <Text style={styles.checkText}>
+              I accept the privacy policy and consent to the collection.
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.checkRow}
+            onPress={() => setConsentGiven(false)}
+          >
+            <Ionicons
+              name={!consentGiven ? "checkmark-circle" : "ellipse-outline"}
+              size={22}
+              color={!consentGiven ? "green" : "gray"}
+            />
+            <Text style={styles.checkText}>
+              I do not consent to the collection or use of my personal data.
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            { backgroundColor: consentGiven ? "#40C375" : "#ccc" },
+          ]}
+          onPress={handleConfirm}
+          disabled={!consentGiven}
+        >
+          <Text style={styles.confirmText}>Confirm</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    flexGrow: 1,
+  },
+  card: {
+    backgroundColor: "#f4f4f4",
+    padding: 16,
+    borderRadius: 12,
+    width: "100%",
+    marginBottom: 24,
+  },
+  paragraph: {
+    fontSize: 14,
+    color: "#333",
+    lineHeight: 22,
+  },
+  checkContainer: {
+    width: "100%",
+    marginBottom: 30,
+  },
+  checkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  checkText: {
+    marginLeft: 10,
+    fontSize: 14,
+    flex: 1,
+    color: "#333",
+  },
+  confirmButton: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  confirmText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});
