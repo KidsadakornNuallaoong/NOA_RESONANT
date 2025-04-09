@@ -1,0 +1,32 @@
+# Stage 1: Build Go Binary
+FROM golang:1.23.5-alpine AS builder
+WORKDIR /app
+
+# Copy go.mod and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the application code
+COPY . .
+
+# Copy .env.dev file to the container
+COPY .env.dev .env
+
+# Build the Go application
+RUN go build -o main .
+
+# Stage 2: Create a minimal runtime image
+FROM alpine:latest
+WORKDIR /app
+
+# Copy only the built binary from the builder stage
+COPY --from=builder /app/main .
+
+# Expose the required port
+EXPOSE 8000
+
+# Set environment variable
+ENV PORT=8000
+
+# Run the application
+CMD ["./main"]
