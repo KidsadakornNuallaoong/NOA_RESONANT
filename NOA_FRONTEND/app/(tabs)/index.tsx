@@ -1,6 +1,9 @@
 import { StyleSheet } from "react-native";
 
+<<<<<<< Updated upstream
 import EditScreenInfo from "@/components/EditScreenInfo";
+=======
+>>>>>>> Stashed changes
 import { Text, View } from "@/components/Themed";
 
 export default function TabOneScreen() {
