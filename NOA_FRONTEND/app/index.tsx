@@ -59,6 +59,17 @@ const IndexScreen = () => {
             />
           </TouchableOpacity>
         </View>
+        {/* Sign In btn */}
+        <TouchableOpacity
+          style={styles.btn}
+          //   onPress={handleSignIn}
+          //   disabled={isLoading} // Disable the button while loading
+        >
+          {/* <Text style={styles.btnText}>
+            {isLoading ? "Signing In..." : "Sign In"}
+          </Text> */}
+          <Text>btn</Text>
+        </TouchableOpacity>
       </View>
     </>
   );
