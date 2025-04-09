@@ -18,6 +18,23 @@ export default function TabOneScreen() {
       <Text>abc</Text>
       {/* Hello */}
       <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
+      <Text>abc</Text>
+      {/* Hello */}
     </View>
   );
 }
