@@ -16,6 +16,7 @@ export default function TabOneScreen() {
         laborum aut illo iste, eveniet sapiente! Aliquid, laudantium doloribus?
       </Text>
       <Text>abc</Text>
+      {/* Hello */}
     </View>
   );
 }
