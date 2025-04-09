@@ -7,15 +7,60 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 const IndexScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isloading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      setError("Please fill the information.");
+      return;
+    }
+
+    setError(""); // Clear any previous error
+    setIsLoading(true); // Start loading
+    const API = `${process.env.EXPO_PUBLIC_API_URL}/login`;
+    // const API = `${API_URL}/login`; // Replace
+    // const API = "http://104.214.174.39:8000/login"; // Replace with your API endpoint
+
+    try {
+      const response = await fetch(API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Login successful:", data);
+
+        // Save the token only if "Remember Me" is selected
+        // if (isSelected) {
+        //   await SecureStore.setItemAsync("user_token", data.token);
+        // }
+
+        // Navigate to home screen after successful login
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      console.error("Sign-in error:", err);
+    } finally {
+      setIsLoading(false); // Stop loading
+    }
+  };
 
   return (
     <>
