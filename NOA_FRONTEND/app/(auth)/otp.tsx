@@ -10,6 +10,7 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import { Stack, useLocalSearchParams, router, Link } from "expo-router";
 import { sendOtp, verifyOtp } from "@/service/authen";
+import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
 const OtpScreen = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -88,49 +89,65 @@ const OtpScreen = () => {
       <Stack.Screen options={{ headerTitle: "OTP Verification" }} />
       <View style={styles.container}>
         <View style={styles.centeredContainer}>
-          <Image source={require("../../assets/images/email.png")} />
-          <Text style={styles.title}>Check Your Email</Text>
-          <Text style={styles.subtitle}>
+          <Animated.Image
+            entering={FadeInRight.delay(500).duration(300)}
+            source={require("../../assets/images/email.png")}
+          />
+          <Animated.Text
+            entering={FadeInRight.delay(500).duration(300)}
+            style={styles.title}
+          >
+            Check Your Email
+          </Animated.Text>
+          <Animated.Text
+            entering={FadeInRight.delay(500).duration(300)}
+            style={styles.subtitle}
+          >
             We've sent an OTP to {email}. Please enter the code below.
-          </Text>
+          </Animated.Text>
+          <Animated.View entering={FadeInDown.delay(600).duration(300)}>
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={(ref) => (inputs.current[index] = ref)}
+                  style={styles.input}
+                  value={digit}
+                  onChangeText={(text) => handleOtpChange(text, index)}
+                  onKeyPress={(e) => handleKeyPress(e, index)}
+                  keyboardType="numeric"
+                  maxLength={1}
+                  autoFocus={index === 0}
+                />
+              ))}
+            </View>
+          </Animated.View>
 
-          <View style={styles.otpContainer}>
-            {otp.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={(ref) => (inputs.current[index] = ref)}
-                style={styles.input}
-                value={digit}
-                onChangeText={(text) => handleOtpChange(text, index)}
-                onKeyPress={(e) => handleKeyPress(e, index)}
-                keyboardType="numeric"
-                maxLength={1}
-                autoFocus={index === 0}
-              />
-            ))}
-          </View>
+          <Animated.View entering={FadeInDown.delay(700).duration(300)}>
+            <View style={styles.resendContainer}>
+              <Text style={styles.resendText}>Didn't get the code?</Text>
+              <TouchableOpacity onPress={handleResend} disabled={loading}>
+                <Text style={[styles.sendSpan, loading && styles.disabledText]}>
+                  {loading ? "Resending..." : "Resend code"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </View>
 
-          <View style={styles.resendContainer}>
-            <Text style={styles.resendText}>Didn't get the code?</Text>
-            <TouchableOpacity onPress={handleResend} disabled={loading}>
-              <Text style={[styles.sendSpan, loading && styles.disabledText]}>
-                {loading ? "Resending..." : "Resend code"}
+        <Animated.View entering={FadeInDown.delay(800).duration(300)}>
+          <View style={styles.otp}>
+            <TouchableOpacity
+              style={[styles.btn, loading && styles.btnDisabled]}
+              onPress={handleVerify}
+              disabled={loading}
+            >
+              <Text style={styles.btnText}>
+                {loading ? "Verifying..." : "Verify Now"}
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        <View style={styles.otp}>
-          <TouchableOpacity
-            style={[styles.btn, loading && styles.btnDisabled]}
-            onPress={handleVerify}
-            disabled={loading}
-          >
-            <Text style={styles.btnText}>
-              {loading ? "Verifying..." : "Verify Now"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     </>
   );

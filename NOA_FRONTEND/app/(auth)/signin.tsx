@@ -19,6 +19,7 @@ import {
   saveRememberedEmail,
   saveToken,
 } from "@/utils/secureStore";
+import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
@@ -85,100 +86,128 @@ const SignInScreen = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={styles.headerBackground}>
-          <Image
+          <Animated.Image
+            entering={FadeInRight.delay(500).duration(300)}
             source={require("../../assets/images/NOA.png")}
             style={styles.logo}
           />
-          <Text style={styles.title}>Noa Resonant</Text>
+          <Animated.Text
+            style={styles.title}
+            entering={FadeInRight.delay(500).duration(300)}
+          >
+            Noa Resonant
+          </Animated.Text>
         </View>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={20} style={styles.icon} />
-          <TextInput
-            placeholder="Email"
-            style={styles.inputField}
-            value={email}
-            onChangeText={setEmail}
-            placeholderTextColor="#ccc"
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="key-outline" size={20} style={styles.icon} />
-          <TextInput
-            placeholder="Password"
-            style={styles.inputField}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
-            placeholderTextColor="#ccc"
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color="gray"
+        <Animated.View entering={FadeInDown.delay(500).duration(300)}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={20} style={styles.icon} />
+            <TextInput
+              placeholder="Email"
+              style={styles.inputField}
+              value={email}
+              onChangeText={setEmail}
+              placeholderTextColor="#ccc"
             />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.checkboxContainer}>
-          <View style={styles.checkboxWrapper}>
-            <Checkbox
-              value={isSelected}
-              onValueChange={setIsSelected}
-              color={isSelected ? "#40C375" : undefined}
-              style={{ width: 20, height: 20, borderWidth: 2 }}
-            />
-            <Text style={styles.checkboxText}>Remember me</Text>
           </View>
-          <Link href="/forgot" asChild>
-            <TouchableOpacity>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(600).duration(300)}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="key-outline" size={20} style={styles.icon} />
+            <TextInput
+              placeholder="Password"
+              style={styles.inputField}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+              placeholderTextColor="#ccc"
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color="gray"
+              />
             </TouchableOpacity>
-          </Link>
-        </View>
+          </View>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={handleSignIn}
-          disabled={isLoading}
-        >
-          <Text style={styles.btnText}>
-            {isLoading ? "Signing In..." : "Sign In"}
-          </Text>
-        </TouchableOpacity>
+        <Animated.View entering={FadeInDown.delay(700).duration(300)}>
+          <View style={styles.checkboxContainer}>
+            <View style={styles.checkboxWrapper}>
+              <Checkbox
+                value={isSelected}
+                onValueChange={setIsSelected}
+                color={isSelected ? "#40C375" : undefined}
+                style={{ width: 20, height: 20, borderWidth: 2 }}
+              />
+              <Text style={styles.checkboxText}>Remember me</Text>
+            </View>
+            <Link href="/forgot" asChild>
+              <TouchableOpacity>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        </Animated.View>
 
-        <View style={styles.seperatorView}>
-          <View style={styles.seperatorLine} />
-          <Text style={styles.seperator}>or</Text>
-          <View style={styles.seperatorLine} />
-        </View>
+        <Animated.View entering={FadeInDown.delay(700).duration(300)}>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={handleSignIn}
+            disabled={isLoading}
+          >
+            <Text style={styles.btnText}>
+              {isLoading ? "Signing In..." : "Sign In"}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View entering={FadeInDown.delay(800).duration(300)}>
+          <View style={styles.seperatorView}>
+            <View style={styles.seperatorLine} />
+            <Text style={styles.seperator}>or</Text>
+            <View style={styles.seperatorLine} />
+          </View>
+        </Animated.View>
 
         <View style={styles.socialButtonsContainer}>
-          <TouchableOpacity style={styles.btnOutline}>
-            <Image source={require("../../assets/images/facebook.png")} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnOutline}>
-            <Image source={require("../../assets/images/google 1.png")} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnOutline}>
-            <Image source={require("../../assets/images/github (1).png")} />
-          </TouchableOpacity>
+          <Animated.View entering={FadeInDown.delay(900).duration(300)}>
+            <TouchableOpacity style={styles.btnOutline}>
+              <Image source={require("../../assets/images/facebook.png")} />
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View entering={FadeInDown.delay(1000).duration(300)}>
+            <TouchableOpacity style={styles.btnOutline}>
+              <Image source={require("../../assets/images/google 1.png")} />
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View entering={FadeInDown.delay(1100).duration(300)}>
+            <TouchableOpacity style={styles.btnOutline}>
+              <Image source={require("../../assets/images/github (1).png")} />
+            </TouchableOpacity>
+          </Animated.View>
         </View>
 
-        <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>Don't have an account? </Text>
-          <Link href="/signup" asChild>
-            <TouchableOpacity>
-              <Text style={styles.loginSpan}>Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
+        <Animated.View entering={FadeInDown.delay(1200).duration(300)}>
+          <View style={styles.loginContainer}>
+            <Text style={styles.loginText}>Don't have an account? </Text>
+            <Link href="/signup" asChild>
+              <TouchableOpacity>
+                <Text style={styles.loginSpan}>Sign Up</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        </Animated.View>
+        <Link href="/(tabs)/device" asChild>
+          <TouchableOpacity>
+            <Text style={styles.loginSpan}>Home</Text>
+          </TouchableOpacity>
+        </Link>
       </KeyboardAvoidingView>
     </>
   );
@@ -233,7 +262,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     backgroundColor: "#40C375",
-    width: "75%",
+    width: 300,
     height: 48,
     justifyContent: "center",
     alignItems: "center",

@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { Link, router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { registerUser } from "@/service/authen";
+import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState("");
@@ -95,60 +96,69 @@ const SignUpScreen = () => {
     <>
       <Stack.Screen options={{ headerTitle: "Sign Up" }} />
       <View style={styles.container}>
-        <Image
+        <Animated.Image
+          entering={FadeInRight.delay(500).duration(300)}
           style={{ width: 145, height: 110 }}
           source={require("../../assets/images/NOA.png")}
         />
-        <Text style={styles.title}>Create an account</Text>
+        <Animated.Text
+          entering={FadeInRight.delay(500).duration(300)}
+          style={styles.title}
+        >
+          Create an account
+        </Animated.Text>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         {/* Form */}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="person-circle-outline"
-            size={20}
-            style={styles.icon}
-          />
-          <TextInput
-            value={username}
-            onChangeText={setUsername}
-            placeholder="Username"
-            style={styles.inputField}
-            placeholderTextColor="#666"
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={20} style={styles.icon} />
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            style={styles.inputField}
-            placeholderTextColor="#666"
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="key-outline" size={20} style={styles.icon} />
-          <TextInput
-            value={password}
-            onChangeText={handlePasswordChange}
-            placeholder="Password"
-            style={styles.inputField}
-            secureTextEntry={!showPassword}
-            placeholderTextColor="#666"
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        <Animated.View entering={FadeInDown.delay(500).duration(300)}>
+          <View style={styles.inputContainer}>
             <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              name="person-circle-outline"
               size={20}
-              color="gray"
+              style={styles.icon}
             />
-          </TouchableOpacity>
-        </View>
-
+            <TextInput
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Username"
+              style={styles.inputField}
+              placeholderTextColor="#666"
+            />
+          </View>
+        </Animated.View>
+        <Animated.View entering={FadeInDown.delay(600).duration(300)}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={20} style={styles.icon} />
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Email"
+              style={styles.inputField}
+              placeholderTextColor="#666"
+            />
+          </View>
+        </Animated.View>
+        <Animated.View entering={FadeInDown.delay(700).duration(300)}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="key-outline" size={20} style={styles.icon} />
+            <TextInput
+              value={password}
+              onChangeText={handlePasswordChange}
+              placeholder="Password"
+              style={styles.inputField}
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#666"
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
         {/* Strength Meter */}
         {password.length > 0 && (
           <>
@@ -170,42 +180,49 @@ const SignUpScreen = () => {
             </Text>
           </>
         )}
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="key-outline" size={20} style={styles.icon} />
-          <TextInput
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder="Confirm Password"
-            style={styles.inputField}
-            secureTextEntry={!showConfirm}
-            placeholderTextColor="#666"
-          />
-          <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
-            <Ionicons
-              name={showConfirm ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color="gray"
+        <Animated.View entering={FadeInDown.delay(800).duration(300)}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="key-outline" size={20} style={styles.icon} />
+            <TextInput
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirm Password"
+              style={styles.inputField}
+              secureTextEntry={!showConfirm}
+              placeholderTextColor="#666"
             />
+            <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
+              <Ionicons
+                name={showConfirm ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* Submit Button */}
+        <Animated.View entering={FadeInDown.delay(900).duration(300)}>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={handleSignUp}
+            disabled={isLoading}
+          >
+            <Text style={styles.btnText}>
+              {isLoading ? "Creating Account..." : "Create Account"}
+            </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={handleSignUp}
-          disabled={isLoading}
-        >
-          <Text style={styles.btnText}>
-            {isLoading ? "Creating Account..." : "Create Account"}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>Already have an account? </Text>
-          <Link href="/">
-            <Text style={styles.loginSpan}>Sign In</Text>
-          </Link>
-        </View>
+        {/* Login Link */}
+        <Animated.View entering={FadeInDown.delay(1000).duration(300)}>
+          <View style={styles.loginContainer}>
+            <Text style={styles.loginText}>Already have an account? </Text>
+            <Link href="/">
+              <Text style={styles.loginSpan}>Sign In</Text>
+            </Link>
+          </View>
+        </Animated.View>
       </View>
     </>
   );
