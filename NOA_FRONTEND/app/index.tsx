@@ -9,7 +9,7 @@ export default function Index() {
       const token = await getToken();
 
       if (token) {
-        router.replace("/(tabs)");
+        router.replace("/(tabs)/device");
       } else {
         router.replace("/(auth)/signin");
       }

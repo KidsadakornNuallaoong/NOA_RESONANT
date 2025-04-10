@@ -1,26 +1,41 @@
-// app/pdpa.tsx
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { sendOtp } from "@/service/authen";
 
 export default function PdpaScreen() {
   const router = useRouter();
-  const { email } = useLocalSearchParams();
-  const [consentGiven, setConsentGiven] = useState(false);
+  const { email, username, password } = useLocalSearchParams();
+  const emailString = Array.isArray(email) ? email[0] : email;
+  const usernameString = Array.isArray(username) ? username[0] : username;
+  const passwordString = Array.isArray(password) ? password[0] : password;
 
-  const handleConfirm = () => {
-    if (consentGiven) {
-      router.push({
+  const [consentGiven, setConsentGiven] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    if (!consentGiven || !email) return;
+
+    setLoading(true);
+    try {
+      await sendOtp(emailString); // เรียกแบบ POST
+      router.replace({
         pathname: "/otp",
-        params: { email },
+        params: { email, username, password },
       });
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Could not send OTP.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,16 +99,19 @@ export default function PdpaScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-
         <TouchableOpacity
           style={[
             styles.confirmButton,
             { backgroundColor: consentGiven ? "#40C375" : "#ccc" },
           ]}
           onPress={handleConfirm}
-          disabled={!consentGiven}
+          disabled={!consentGiven || loading}
         >
-          <Text style={styles.confirmText}>Confirm</Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.confirmText}>Confirm</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </>

@@ -9,13 +9,16 @@ import {
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import { Stack, useLocalSearchParams, router, Link } from "expo-router";
+import { sendOtp, verifyOtp } from "@/service/authen";
 
 const OtpScreen = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const inputs = useRef<(TextInput | null)[]>([]);
-  const params = useLocalSearchParams();
-  const email = params.email as string;
+  const { email, username, password } = useLocalSearchParams();
+  const emailString = Array.isArray(email) ? email[0] : email;
+  const usernameString = Array.isArray(username) ? username[0] : username;
+  const passwordString = Array.isArray(password) ? password[0] : password;
 
   // ✅ เช็คถ้าไม่มี email ให้กลับไปหน้า /signup
   useEffect(() => {
@@ -55,26 +58,11 @@ const OtpScreen = () => {
     }
 
     setLoading(true);
-
-    // const API = `${process.env.EXPO_PUBLIC_API_URL}/verifyotp`; // ✅ เปลี่ยนเป็น API ที่ถูกต้อง
-    const API = "http://104.214.174.39:8000/verifyotp"; // ✅ เปลี่ยนเป็น API ที่ถูกต้อง
-
     try {
-      const response = await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email, otp: otpCode }), // ✅ ส่งค่า OTP และ Email
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push("/"); // สำเร็จแล้วไปหน้า /login
-      } else {
-        Alert.alert("Error", data.message || "Invalid OTP, please try again.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An unexpected error occurred.");
+      await verifyOtp(usernameString, emailString, passwordString, otpCode);
+      router.replace("/"); // ✅ ไปหน้า Login/Home
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Invalid OTP.");
     } finally {
       setLoading(false);
     }
@@ -83,24 +71,13 @@ const OtpScreen = () => {
   // ✅ ฟังก์ชัน Resend OTP
   const handleResend = async () => {
     setLoading(true);
-    const API = `${process.env.API_URL}/sendotp`;
     try {
-      const response = await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Email: email }), // ✅ ส่ง Email กลับไปที่ Backend
-      });
-
-      if (response.ok) {
-        Alert.alert("Success", "A new OTP has been sent to your email");
-        setOtp(["", "", "", ""]);
-        inputs.current[0]?.focus(); // กลับไปที่ช่องแรก
-      } else {
-        const data = await response.json();
-        Alert.alert("Error", data.message || "Failed to resend OTP.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An unexpected error occurred.");
+      await sendOtp(emailString); // เปลี่ยนเป็น POST
+      Alert.alert("Success", "A new OTP has been sent to your email");
+      setOtp(["", "", "", ""]);
+      inputs.current[0]?.focus();
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Resending failed.");
     } finally {
       setLoading(false);
     }

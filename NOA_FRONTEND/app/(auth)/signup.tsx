@@ -10,6 +10,7 @@ import {
 import React, { useState } from "react";
 import { Link, router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { registerUser } from "@/service/authen";
 
 const SignUpScreen = () => {
   const [username, setUsername] = useState("");
@@ -18,9 +19,39 @@ const SignUpScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const validateEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
+  };
+
+  const checkPasswordStrength = (pass: string): number => {
+    let strength = 0;
+    if (pass.length >= 8) strength++;
+    if (/[A-Z]/.test(pass)) strength++;
+    if (/[a-z]/.test(pass)) strength++;
+    if (/[0-9]/.test(pass)) strength++;
+    if (/[^A-Za-z0-9]/.test(pass)) strength++;
+    return strength;
+  };
+
+  const getStrengthLabel = () => {
+    if (passwordStrength <= 1) return "Weak";
+    if (passwordStrength <= 3) return "Medium";
+    return "Strong";
+  };
+
+  const getStrengthColor = () => {
+    if (passwordStrength <= 1) return "#FF4D4D"; // Red
+    if (passwordStrength <= 3) return "#FFA500"; // Orange
+    return "#28a745"; // Green
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setPasswordStrength(checkPasswordStrength(text));
   };
 
   const handleSignUp = async () => {
@@ -28,50 +59,33 @@ const SignUpScreen = () => {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-    // username validation
     if (username.length < 3) {
       Alert.alert("Error", "Username must be at least 3 characters long");
       return;
     }
-
     if (!validateEmail(email)) {
       Alert.alert("Error", "Please enter a valid email");
       return;
     }
-
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
 
     setIsLoading(true);
-    // Replace with your API endpoint from the backend environment variable
-    const API = `${process.env.EXPO_PUBLIC_API_URL}/register`;
-    // const API = "http://104.214.174.39:8000/register"; // Replace with your API endpoint
-
     try {
-      const response = await fetch(API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const data = await registerUser(username, email, password);
+
+      router.push({
+        pathname: "/pdpa",
+        params: {
+          email: data.email,
+          username: data.username,
+          password: data.password,
         },
-        body: JSON.stringify({
-          Username: username,
-          Email: email,
-          Password: password,
-        }),
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push({ pathname: "/pdpa", params: { email } });
-      } else {
-        setError(data.message || "Registration failed. Please try again.");
-        Alert.alert("Error", data.message || "Registration failed.");
-      }
-    } catch (error) {
-      Alert.alert("Error", "An unexpected error occurred. Please try again.");
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Registration failed.");
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +103,7 @@ const SignUpScreen = () => {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
+        {/* Form */}
         <View style={styles.inputContainer}>
           <Ionicons
             name="person-circle-outline"
@@ -100,8 +115,10 @@ const SignUpScreen = () => {
             onChangeText={setUsername}
             placeholder="Username"
             style={styles.inputField}
+            placeholderTextColor="#666"
           />
         </View>
+
         <View style={styles.inputContainer}>
           <Ionicons name="mail-outline" size={20} style={styles.icon} />
           <TextInput
@@ -109,6 +126,7 @@ const SignUpScreen = () => {
             onChangeText={setEmail}
             placeholder="Email"
             style={styles.inputField}
+            placeholderTextColor="#666"
           />
         </View>
 
@@ -116,12 +134,42 @@ const SignUpScreen = () => {
           <Ionicons name="key-outline" size={20} style={styles.icon} />
           <TextInput
             value={password}
-            onChangeText={setPassword}
+            onChangeText={handlePasswordChange}
             placeholder="Password"
             style={styles.inputField}
-            secureTextEntry
+            secureTextEntry={!showPassword}
+            placeholderTextColor="#666"
           />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="gray"
+            />
+          </TouchableOpacity>
         </View>
+
+        {/* Strength Meter */}
+        {password.length > 0 && (
+          <>
+            <View style={styles.strengthBarContainer}>
+              <View
+                style={[
+                  styles.strengthBar,
+                  {
+                    width: `${(passwordStrength / 5) * 100}%`,
+                    backgroundColor: getStrengthColor(),
+                  },
+                ]}
+              />
+            </View>
+            <Text style={[styles.passwordHint, { color: getStrengthColor() }]}>
+              {getStrengthLabel() === "Weak"
+                ? "Please use a more complex password"
+                : `Password strength: ${getStrengthLabel()}`}
+            </Text>
+          </>
+        )}
 
         <View style={styles.inputContainer}>
           <Ionicons name="key-outline" size={20} style={styles.icon} />
@@ -130,8 +178,16 @@ const SignUpScreen = () => {
             onChangeText={setConfirmPassword}
             placeholder="Confirm Password"
             style={styles.inputField}
-            secureTextEntry
+            secureTextEntry={!showConfirm}
+            placeholderTextColor="#666"
           />
+          <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
+            <Ionicons
+              name={showConfirm ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color="gray"
+            />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -187,6 +243,23 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     fontSize: 16,
+  },
+  strengthBarContainer: {
+    width: "80%",
+    height: 5,
+    backgroundColor: "#ddd",
+    borderRadius: 5,
+    marginTop: -10,
+    marginBottom: 5,
+  },
+  strengthBar: {
+    height: "100%",
+    borderRadius: 5,
+  },
+  passwordHint: {
+    width: "80%",
+    fontSize: 12,
+    marginBottom: 10,
   },
   btn: {
     backgroundColor: "#000",

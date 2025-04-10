@@ -5,11 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link, router, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { CheckBox } from "@rneui/themed";
 import Checkbox from "expo-checkbox";
 import {
   clearRememberedEmail,
@@ -38,38 +39,26 @@ const SignInScreen = () => {
     loadRememberedData();
   }, []);
 
-  // Function Login
   const handleSignIn = async () => {
     if (!email || !password) {
       setError("Please fill the information.");
       return;
     }
 
-    setError(""); // Clear any previous error
-    setIsLoading(true); // Start loading
+    setError("");
+    setIsLoading(true);
     const API = `${process.env.EXPO_PUBLIC_API_URL}/login`;
-    console.log("🔍 API:", API);
-
-    // const API = `${API_URL}/login`; // Replace
-    // const API = "http://104.214.174.39:8000/login"; // Replace with your API endpoint
 
     try {
       const response = await fetch(API, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          Email: email,
-          Password: password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Email: email, Password: password }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        const token = data.token; // Assuming the token is returned in the response
-        console.log("Login successful:", data);
-
+        const token = data.token;
         if (isSelected) {
           await saveRememberedEmail(email);
           await saveToken(token);
@@ -77,26 +66,24 @@ const SignInScreen = () => {
           await clearRememberedEmail();
           await clearToken();
         }
-        // router.replace("/(tabs)"); // Navigate to the main app screen
-        router.push("/(tabs)"); // Navigate to the main app screen
-
-        // Navigate to home screen after successful login
+        router.push("/(tabs)/device");
       } else {
         setError("Invalid email or password. Please try again.");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
-      console.error("Sign-in error:", err);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.container}>
-        {/* Image */}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <View style={styles.headerBackground}>
           <Image
             source={require("../../assets/images/NOA.png")}
@@ -105,6 +92,7 @@ const SignInScreen = () => {
           <Text style={styles.title}>Noa Resonant</Text>
         </View>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
         <View style={styles.inputContainer}>
           <Ionicons name="mail-outline" size={20} style={styles.icon} />
           <TextInput
@@ -112,6 +100,7 @@ const SignInScreen = () => {
             style={styles.inputField}
             value={email}
             onChangeText={setEmail}
+            placeholderTextColor="#ccc"
           />
         </View>
 
@@ -120,9 +109,10 @@ const SignInScreen = () => {
           <TextInput
             placeholder="Password"
             style={styles.inputField}
-            secureTextEntry={!showPassword} // Toggle password visibility
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
+            placeholderTextColor="#ccc"
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
@@ -136,7 +126,6 @@ const SignInScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Checkbox */}
         <View style={styles.checkboxContainer}>
           <View style={styles.checkboxWrapper}>
             <Checkbox
@@ -147,83 +136,50 @@ const SignInScreen = () => {
             />
             <Text style={styles.checkboxText}>Remember me</Text>
           </View>
-
-          {/* Forgot password link */}
-          <Link href={"/forgot"} asChild>
+          <Link href="/forgot" asChild>
             <TouchableOpacity>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
           </Link>
         </View>
 
-        {/* Sign In btn */}
         <TouchableOpacity
           style={styles.btn}
           onPress={handleSignIn}
-          disabled={isLoading} // Disable the button while loading
+          disabled={isLoading}
         >
           <Text style={styles.btnText}>
             {isLoading ? "Signing In..." : "Sign In"}
           </Text>
         </TouchableOpacity>
 
-        {/* Seperate view */}
         <View style={styles.seperatorView}>
-          <View
-            style={{
-              flex: 1,
-              borderBottomColor: "#000",
-              borderBottomWidth: StyleSheet.hairlineWidth,
-            }}
-          />
-          <Text style={styles.seperator}>OR</Text>
-          <View
-            style={{
-              flex: 1,
-              borderBottomColor: "#000",
-              borderBottomWidth: StyleSheet.hairlineWidth,
-            }}
-          />
+          <View style={styles.seperatorLine} />
+          <Text style={styles.seperator}>or</Text>
+          <View style={styles.seperatorLine} />
         </View>
 
-        {/* Social login buttons */}
         <View style={styles.socialButtonsContainer}>
-          <TouchableOpacity
-            style={styles.btnOutline}
-            // onPress={() => onSelectAuth(Strategy.Facebook)}
-          >
+          <TouchableOpacity style={styles.btnOutline}>
             <Image source={require("../../assets/images/facebook.png")} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.btnOutline}
-            // onPress={() => onSelectAuth(Strategy.Google)}
-          >
+          <TouchableOpacity style={styles.btnOutline}>
             <Image source={require("../../assets/images/google 1.png")} />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.btnOutline}
-            // onPress={() => onSelectAuth(Strategy.Github)}
-          >
-            <Image source={require("../../assets/images/github.png")} />
+          <TouchableOpacity style={styles.btnOutline}>
+            <Image source={require("../../assets/images/github (1).png")} />
           </TouchableOpacity>
         </View>
 
-        {/* Sign up link */}
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>Don't have an account? </Text>
-          <Link href={"/signup"} asChild>
+          <Link href="/signup" asChild>
             <TouchableOpacity>
               <Text style={styles.loginSpan}>Sign Up</Text>
             </TouchableOpacity>
           </Link>
         </View>
-        <Link href={"/pdpa"} asChild>
-          <TouchableOpacity>
-            <Text style={styles.loginSpan}>Go to homme</Text>
-          </TouchableOpacity>
-        </Link>
-      </View>
+      </KeyboardAvoidingView>
     </>
   );
 };
@@ -233,31 +189,25 @@ export default SignInScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#2d2d2d",
     alignItems: "center",
+    justifyContent: "center",
   },
   headerBackground: {
-    marginBottom: 60,
-    // backgroundColor: "#2d2d2d",
-    width: "100%",
-    height: 300,
-    borderBottomLeftRadius: 120,
-    borderBottomRightRadius: 120,
-    overflow: "hidden",
+    marginBottom: 30,
     justifyContent: "center",
     alignItems: "center",
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 180,
     resizeMode: "contain",
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#A0F5C2",
-    marginTop: 20,
-    marginBottom: 40,
+    marginTop: 10,
   },
   inputContainer: {
     flexDirection: "row",
@@ -265,17 +215,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#d3d3d3",
     width: "80%",
-    marginBottom: 20,
+    marginBottom: 15,
   },
   icon: {
     marginRight: 10,
-    color: "#888",
+    color: "#fff",
   },
   inputField: {
     flex: 1,
     height: 50,
     fontSize: 16,
-    color: "#333",
+    color: "#fff",
   },
   eyeIcon: {
     position: "absolute",
@@ -284,34 +234,16 @@ const styles = StyleSheet.create({
   btn: {
     backgroundColor: "#40C375",
     width: "75%",
-    height: 50,
+    height: 48,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    marginTop: 80,
+    marginTop: 30,
   },
   btnText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-    // fontFamily: "Koulen",
-  },
-  loginContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  loginText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#888",
-    // fontFamily: "Koulen",
-  },
-  loginSpan: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#000",
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -327,50 +259,63 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 15,
     fontWeight: "bold",
-    color: "#888",
+    color: "#fff",
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#fff",
   },
   seperatorView: {
     flexDirection: "row",
     alignItems: "center",
     width: "75%",
-    gap: 10,
-    marginVertical: 15,
+    marginVertical: 20,
   },
   seperator: {
     color: "gray",
     fontWeight: "bold",
     fontSize: 14,
+    marginHorizontal: 8,
   },
-  forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#888",
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 10,
-    fontSize: 16,
-  },
-  btnOutline: {
-    backgroundColor: "#000",
-    borderWidth: 1,
-    height: 50,
-    width: 85,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    paddingHorizontal: 10,
-  },
-  btnOutlineText: {
-    color: "#fff",
-    fontSize: 16,
-    paddingLeft: 10,
-    // fontFamily: "Koulen",
+  seperatorLine: {
+    flex: 1,
+    borderBottomColor: "#555",
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   socialButtonsContainer: {
     justifyContent: "space-between",
     flexDirection: "row",
     gap: 20,
+  },
+  btnOutline: {
+    backgroundColor: "#fff",
+    height: 50,
+    width: 85,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loginContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  loginText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#888",
+  },
+  loginSpan: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#fff",
+    marginLeft: 5,
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
+    fontSize: 16,
   },
 });
