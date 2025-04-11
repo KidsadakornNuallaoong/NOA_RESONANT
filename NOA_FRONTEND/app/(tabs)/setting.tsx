@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
-import React from "react";
-import { clearToken, clearRememberedEmail } from "@/utils/secureStore";
+import { clearToken } from "@/utils/secureStore";
 import { router } from "expo-router";
+import React from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const SettingScreen = () => {
   const handleLogout = async () => {
@@ -15,7 +15,7 @@ const SettingScreen = () => {
         style: "destructive",
         onPress: async () => {
           await clearToken();
-          await clearRememberedEmail();
+          // await clearRememberedEmail(); // ลบ email ที่จำไว้
           router.replace("/"); // ไปหน้า login
         },
       },
