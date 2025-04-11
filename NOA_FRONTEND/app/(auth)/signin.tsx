@@ -203,11 +203,6 @@ const SignInScreen = () => {
             </Link>
           </View>
         </Animated.View>
-        <Link href="/(tabs)/device" asChild>
-          <TouchableOpacity>
-            <Text style={styles.loginSpan}>Home</Text>
-          </TouchableOpacity>
-        </Link>
       </KeyboardAvoidingView>
     </>
   );
