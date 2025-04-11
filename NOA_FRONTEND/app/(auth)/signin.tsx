@@ -20,6 +20,12 @@ import {
   saveToken,
 } from "@/utils/secureStore";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  userID: string;
+  message: string;
+}
 
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
@@ -60,13 +66,17 @@ const SignInScreen = () => {
       if (response.ok) {
         const data = await response.json();
         const token = data.token;
+        await saveToken(token);
+
+        // ✅ Decode to extract userID
+        const decoded: DecodedToken = jwtDecode(token);
+        const userID = decoded.userID;
+
         if (isSelected) {
           await saveRememberedEmail(email);
-          await saveToken(token);
-        } else {
-          // await clearRememberedEmail();
-          await clearToken();
         }
+        await saveToken(token); // เก็บ token เสมอหลัง login
+
         router.push("/(tabs)/device");
       } else {
         setError("Invalid email or password. Please try again.");
@@ -81,10 +91,7 @@ const SignInScreen = () => {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+      <View style={styles.container}>
         <View style={styles.headerBackground}>
           <Animated.Image
             entering={FadeInRight.delay(500).duration(300)}
@@ -203,12 +210,7 @@ const SignInScreen = () => {
             </Link>
           </View>
         </Animated.View>
-        <Link href="/(tabs)/device" asChild>
-          <TouchableOpacity>
-            <Text style={styles.loginSpan}>Home</Text>
-          </TouchableOpacity>
-        </Link>
-      </KeyboardAvoidingView>
+      </View>
     </>
   );
 };

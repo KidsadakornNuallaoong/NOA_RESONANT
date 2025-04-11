@@ -12,6 +12,7 @@ module.exports = function (api) {
             "@constants": "./constants",
             "@utils": "./utils",
             "@provider": "./provider",
+            "@assets": "./assets",
           },
         },
       ],
