@@ -64,7 +64,7 @@ const SignInScreen = () => {
           await saveRememberedEmail(email);
           await saveToken(token);
         } else {
-          await clearRememberedEmail();
+          // await clearRememberedEmail();
           await clearToken();
         }
         router.push("/(tabs)/device");
