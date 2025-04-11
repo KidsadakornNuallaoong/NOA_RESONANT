@@ -2,8 +2,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 
 // โหลด ENV ชุดที่ต้องการตาม APP_ENV
-const APP_ENV = process.env.APP_ENV || "development";
-dotenv.config({ path: path.resolve(__dirname, `env/.env.${APP_ENV}`) });
+dotenv.config({ path: path.resolve(__dirname, `env/.env.development`) });
 
 export default {
   expo: {
@@ -40,7 +39,6 @@ export default {
     },
     extra: {
       API: process.env.API_URL,
-      appEnv: APP_ENV,
     },
     fonts: {
       "Inter_18pt-Medium": "./assets/fonts/Inter_18pt-Medium.ttf",
