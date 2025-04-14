@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     alignItems: "center",
     justifyContent: "center",
-    borderBottomLeftRadius: 100,
-    borderBottomRightRadius: 100,
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 50,
     overflow: "hidden",
   },
   inputContainer: {
