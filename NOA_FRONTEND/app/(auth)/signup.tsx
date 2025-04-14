@@ -96,19 +96,17 @@ const SignUpScreen = () => {
     <>
       <Stack.Screen options={{ headerTitle: "Sign Up" }} />
       <View style={styles.container}>
-        <View style={styles.headerBackground}>
-          <Animated.Image
-            entering={FadeInRight.delay(500).duration(300)}
-            style={{ width: 145, height: 110, marginTop: 100 }}
-            source={require("../../assets/images/NOA.png")}
-          />
-          <Animated.Text
-            entering={FadeInRight.delay(500).duration(300)}
-            style={[styles.title, { color: "#fff" }]}
-          >
-            Create an account
-          </Animated.Text>
-        </View>
+        <Animated.Image
+          entering={FadeInRight.delay(500).duration(300)}
+          style={{ width: 145, height: 110 }}
+          source={require("../../assets/images/NOA.png")}
+        />
+        <Animated.Text
+          entering={FadeInRight.delay(500).duration(300)}
+          style={styles.title}
+        >
+          Create an account
+        </Animated.Text>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -235,6 +233,7 @@ export default SignUpScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
   },
@@ -243,17 +242,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 33,
     marginBottom: 75,
-  },
-  headerBackground: {
-    backgroundColor: "#2d2d2d",
-    width: "100%",
-    height: 300,
-    marginBottom: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50,
-    overflow: "hidden",
   },
   inputContainer: {
     flexDirection: "row",
