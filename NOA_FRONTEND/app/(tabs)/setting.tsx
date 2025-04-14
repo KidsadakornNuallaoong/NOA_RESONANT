@@ -27,7 +27,7 @@ interface User {
 
 export default function SettingScreen() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState("system");
   const [fontsLoaded] = useFonts({
     Koulen: require("../../assets/fonts/Koulen-Regular.ttf"),
