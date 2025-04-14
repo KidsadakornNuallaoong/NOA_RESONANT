@@ -135,18 +135,19 @@ const OtpScreen = () => {
           </Animated.View>
         </View>
 
-        <Animated.View entering={FadeInDown.delay(800).duration(300)}>
-          <View style={styles.otp}>
-            <TouchableOpacity
-              style={[styles.btn, loading && styles.btnDisabled]}
-              onPress={handleVerify}
-              disabled={loading}
-            >
-              <Text style={styles.btnText}>
-                {loading ? "Verifying..." : "Verify Now"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <Animated.View
+          entering={FadeInDown.delay(800).duration(300)}
+          style={styles.otp}
+        >
+          <TouchableOpacity
+            style={[styles.btn, loading && styles.btnDisabled]}
+            onPress={handleVerify}
+            disabled={loading}
+          >
+            <Text style={styles.btnText}>
+              {loading ? "Verifying..." : "Verify Now"}
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
       </View>
     </>
