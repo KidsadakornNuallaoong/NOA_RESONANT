@@ -5,6 +5,8 @@ const DeviceScreen = () => {
   return (
     <View>
       <Text>device</Text>
+      <Text>device</Text>
+      <Text>device</Text>
     </View>
   );
 };
