@@ -1,11 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 const DeviceScreen = () => {
   return (
     <View>
-      <Text>device</Text>
-      <Text>device</Text>
       <Text>device</Text>
     </View>
   );
