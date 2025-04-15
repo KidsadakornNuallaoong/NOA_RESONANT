@@ -96,7 +96,10 @@ const SignUpScreen = () => {
     <>
       <Stack.Screen options={{ headerTitle: "Sign Up" }} />
       <View style={styles.container}>
-        <View style={styles.headerBackground}>
+        <Animated.View
+          entering={FadeInDown.delay(500).duration(300)}
+          style={styles.headerBackground}
+        >
           <Animated.Image
             entering={FadeInRight.delay(500).duration(300)}
             style={{ width: 145, height: 110, marginTop: 100 }}
@@ -108,7 +111,7 @@ const SignUpScreen = () => {
           >
             Create an account
           </Animated.Text>
-        </View>
+        </Animated.View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 

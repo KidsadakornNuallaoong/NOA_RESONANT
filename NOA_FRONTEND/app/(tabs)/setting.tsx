@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { clearToken, getToken } from "@/utils/secureStore";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
@@ -142,11 +142,15 @@ export default function SettingScreen() {
           <Ionicons name="refresh-circle" size={24} color="#c53030" />
           <Text style={[styles.optionLabel]}>Reset Settings</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.optionRow}>
-          <Ionicons name="refresh-circle" size={24} />
-          <Text style={[styles.optionLabel]}>SUBSCRIPTION</Text>
-          <MaterialIcons name="keyboard-arrow-right" size={24} color="#aaa" />
-        </TouchableOpacity>
+
+        {/* Subscription */}
+        <Link href={"/(settings)/subscription"} asChild>
+          <TouchableOpacity style={styles.optionRow}>
+            <Ionicons name="refresh-circle" size={24} />
+            <Text style={[styles.optionLabel]}>SUBSCRIPTION</Text>
+            <MaterialIcons name="keyboard-arrow-right" size={24} color="#aaa" />
+          </TouchableOpacity>
+        </Link>
 
         {/* Delete Accout */}
         <TouchableOpacity style={styles.optionRow}>

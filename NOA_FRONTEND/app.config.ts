@@ -44,6 +44,9 @@ export default {
       "Inter_18pt-Medium": "./assets/fonts/Inter_18pt-Medium.ttf",
       "Koulen-Regular": "./assets/fonts/Koulen-Regular.ttf",
       "LilitaOne-Regular": "./assets/fonts/LilitaOne-Regular.ttf",
+      "GemunuLibre-VariableFont_wght":
+        "./assets/fonts/GemunuLibre-VariableFont_wght.ttf",
+      "GemunuLibre-Bold": "./assets/fonts/GemunuLibre-Bold.ttf",
     },
   },
 };
