@@ -7,9 +7,11 @@ import {
   Text,
   TextInput,
   Alert,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import uuid from "react-native-uuid";
+import useDeviceIDSocket from "@/service/wsService";
 
 interface Props {
   onCreate: (device: {
@@ -29,10 +31,14 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
 
   const now = new Date();
   const formatDate = (date: Date) =>
-    `${date.toLocaleDateString()} - ${date.toLocaleTimeString([], {
+    `${date.toLocaleDateString("th-TH")} - ${date.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     })}`;
+  // useDeviceIDSocket((id) => {
+  //   setDeviceId(id);
+  //   setStep(2);
+  // });
 
   const handleNext = () => {
     if (!name.trim()) return Alert.alert("Error", "Enter device name");
@@ -40,6 +46,11 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
     setDeviceId(id);
     setStep(2);
   };
+
+  // const handleNext = () => {
+  //   if (!name.trim()) return Alert.alert("Error", "Enter device name");
+  //   // deviceId will come from WebSocket when ready
+  // };
 
   const handleConfirm = () => {
     if (!password.trim()) return Alert.alert("Error", "Enter your password");
@@ -71,7 +82,7 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
       <Modal visible={visible} transparent animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.modal}>
-            <Ionicons name="hardware-chip" size={44} color="#3fde7f" />
+            <Image source={require("../assets/images/creatDevice.png")} />
             {step === 1 ? (
               <>
                 <Text style={styles.title}>CREATE NEW DEVICE</Text>
@@ -136,7 +147,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     backgroundColor: "#fff",
     borderRadius: 15,
-    width: 65,
+    width: 70,
     height: 55,
     justifyContent: "center",
     alignItems: "center",
@@ -187,6 +198,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
     borderRadius: 10,
     padding: 12,
+    borderColor: "#gray",
+    borderWidth: 0.3,
   },
   nextBtn: {
     flex: 1,
@@ -197,10 +210,12 @@ const styles = StyleSheet.create({
   cancelText: {
     textAlign: "center",
     fontWeight: "bold",
+    fontSize: 25,
   },
   nextText: {
     textAlign: "center",
     fontWeight: "bold",
+    fontSize: 25,
     color: "#fff",
   },
   deviceIDBox: {
