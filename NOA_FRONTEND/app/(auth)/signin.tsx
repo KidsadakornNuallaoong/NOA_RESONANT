@@ -209,6 +209,11 @@ const SignInScreen = () => {
               </TouchableOpacity>
             </Link>
           </View>
+          {/* <Link href="/(tabs)/device" asChild>
+            <TouchableOpacity>
+              <Text style={styles.loginSpan}>Go through Home</Text>
+            </TouchableOpacity>
+          </Link> */}
         </Animated.View>
       </View>
     </>

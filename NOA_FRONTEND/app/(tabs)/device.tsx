@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// ✅ React & React Native imports
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,14 +10,24 @@ import {
   Alert,
   Modal,
 } from "react-native";
+
+// ✅ Expo & Navigation imports
 import { Ionicons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
+
+// ✅ Custom Components & Assets
 import CreateDevice from "@/components/CreateDevice";
 import DeviceIcon from "../../assets/icons/readiness_score_outlined.svg";
 import Calendar from "../../assets/icons/Vector.svg";
 import MostUsedSlider from "@/components/MostuseDevice";
+
+// ✅ Storage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// ✅ Circular chart package
+import CircularProgress from "react-native-circular-progress-indicator";
+
+// ✅ Type for device
 interface Device {
   id: string;
   name: string;
@@ -26,13 +37,15 @@ interface Device {
 }
 
 export default function DeviceScreen() {
+  // ✅ State
   const [devices, setDevices] = useState<Device[]>([]);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
+  const [createModalVisible, setCreateModalVisible] = useState(false);
   const router = useRouter();
 
+  // ✅ Save devices to local storage
   const saveDevices = async (devices: Device[]) => {
     try {
       await AsyncStorage.setItem("DEVICES", JSON.stringify(devices));
@@ -41,6 +54,7 @@ export default function DeviceScreen() {
     }
   };
 
+  // ✅ Load devices from local storage
   const loadDevices = async () => {
     try {
       const json = await AsyncStorage.getItem("DEVICES");
@@ -51,10 +65,16 @@ export default function DeviceScreen() {
     }
   };
 
-  useEffect(() => {
-    loadDevices().then((loaded) => setDevices(loaded));
-  }, []);
+  // ✅ Load devices once on component mount
+  useFocusEffect(
+    useCallback(() => {
+      loadDevices().then((loaded) => {
+        setDevices(loaded);
+      });
+    }, [])
+  );
 
+  // ✅ Toggle bookmark state
   const handleBookmarkToggle = (id: string) => {
     const updated = devices.map((d) =>
       d.id === id ? { ...d, bookmarked: !d.bookmarked } : d
@@ -63,21 +83,25 @@ export default function DeviceScreen() {
     saveDevices(updated);
   };
 
+  // ✅ Create device and save
   const handleCreate = (device: Device) => {
     const updated = [...devices, device];
     setDevices(updated);
     saveDevices(updated);
   };
 
+  // ✅ Navigate to dashboard with device ID
   const handleNavigate = (device: Device) => {
     router.push({ pathname: "/dashboard", params: { id: device.id } });
   };
 
+  // ✅ Prepare to show delete confirmation
   const confirmDelete = (id: string) => {
     setDeleteId(id);
     setShowConfirm(true);
   };
 
+  // ✅ Delete confirmed device
   const handleConfirmedDelete = () => {
     if (deleteId) {
       const updated = devices.filter((d) => d.id !== deleteId);
@@ -88,6 +112,7 @@ export default function DeviceScreen() {
     setDeleteId(null);
   };
 
+  // ✅ Update current date every second
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -107,6 +132,7 @@ export default function DeviceScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ Render donut charts (for grid)
   const renderDevice = ({ item, index }: { item: Device; index: number }) => {
     const isEven = index % 2 === 0;
     return (
@@ -114,7 +140,10 @@ export default function DeviceScreen() {
         <View
           style={[
             styles.deviceCard,
-            { backgroundColor: isEven ? "#2d2d2d" : "#fff", borderWidth: 0.2 },
+            {
+              backgroundColor: isEven ? "#2d2d2d" : "#eff2fa",
+              borderWidth: 0.1,
+            },
           ]}
         >
           <View style={styles.deviceRow}>
@@ -183,12 +212,70 @@ export default function DeviceScreen() {
     );
   };
 
+  // ✅ Render each device card (List view)
+  const renderDonut = () => {
+    return (
+      <View style={styles.chartRow}>
+        {/* Fault */}
+        <View
+          style={styles.chartCol}
+          pointerEvents="none"
+          renderToHardwareTextureAndroid={true}
+        >
+          <CircularProgress
+            value={50}
+            maxValue={100}
+            radius={20}
+            progressValueColor="#fff"
+            valueSuffix="%"
+            titleColor="#ff5e5e"
+            titleStyle={styles.titleText}
+            activeStrokeColor="#ff9248"
+            inActiveStrokeColor="#2d2d2d"
+            activeStrokeWidth={5}
+            inActiveStrokeWidth={5}
+            duration={0} // เปลี่ยนจาก 1000 เป็น 0 เพื่อปิด animation
+            clockwise={false}
+            strokeLinecap="round"
+          />
+        </View>
+
+        {/* Normal */}
+        <View
+          style={styles.chartCol}
+          pointerEvents="none"
+          renderToHardwareTextureAndroid={true}
+        >
+          <CircularProgress
+            value={100}
+            maxValue={100}
+            radius={20}
+            progressValueColor="#fff"
+            valueSuffix="%"
+            titleColor="#3fde7f"
+            titleStyle={styles.titleText}
+            activeStrokeColor="#3fde7f"
+            inActiveStrokeColor="#2d2d2d"
+            activeStrokeWidth={5}
+            inActiveStrokeWidth={5}
+            duration={0}
+            clockwise={true}
+            strokeLinecap="round"
+          />
+        </View>
+      </View>
+    );
+  };
+
+  // ✅ Render grid item
   const renderGridItem = ({ item }: { item: Device }) => (
     <TouchableOpacity onPress={() => handleNavigate(item)}>
       <View style={styles.gridCard}>
         <View style={styles.topRow}>
-          <View style={styles.statusDot} />
-          <Text style={styles.deviceId}>{item.name}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View style={styles.statusDot} />
+            <Text style={styles.deviceId}>{item.name}</Text>
+          </View>
           <View style={{ flexDirection: "row", gap: 6 }}>
             <Ionicons
               name={item.bookmarked ? "bookmark" : "bookmark-outline"}
@@ -200,14 +287,14 @@ export default function DeviceScreen() {
               name="trash-outline"
               size={16}
               color="#ff4d4f"
-              onPress={() => confirmDelete(item.id)}
+              onPress={(e) => {
+                e.stopPropagation(); // หยุดการ propagate ของ event
+                confirmDelete(item.id);
+              }}
             />
           </View>
         </View>
-        <View style={styles.rowCenter}>
-          <Text style={styles.orangeText}>60%</Text>
-          <Text style={styles.grayText}>15%</Text>
-        </View>
+        {renderDonut()}
         <View style={styles.rowCenter}>
           <Text style={styles.labelRed}>Fault</Text>
           <Text style={styles.labelGreen}>Normal</Text>
@@ -215,6 +302,8 @@ export default function DeviceScreen() {
       </View>
     </TouchableOpacity>
   );
+
+  const displayedDevices = devices.filter((d) => !d.bookmarked);
 
   return (
     <View style={styles.container}>
@@ -271,7 +360,7 @@ export default function DeviceScreen() {
         </View>
       </View>
 
-      {devices.length === 0 ? (
+      {displayedDevices.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Image
             source={require("../../assets/images/NOA.png")}
@@ -283,19 +372,78 @@ export default function DeviceScreen() {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={devices}
-          keyExtractor={(item) => item.id}
-          key={viewMode}
-          numColumns={viewMode === "grid" ? 2 : 1}
-          renderItem={viewMode === "grid" ? renderGridItem : renderDevice}
-          columnWrapperStyle={
-            viewMode === "grid"
-              ? { justifyContent: "space-between" }
-              : undefined
-          }
-          style={{ marginTop: 20 }}
-        />
+        <>
+          {/* แสดง list view ตามปกติ */}
+          {viewMode === "list" && (
+            <FlatList
+              data={displayedDevices}
+              keyExtractor={(item) => item.id}
+              renderItem={renderDevice}
+              style={{ marginTop: 20 }}
+            />
+          )}
+
+          {/* แสดง grid view แบบมีกราฟเมื่อ Modal ไม่เปิด */}
+          {viewMode === "grid" && !showConfirm && (
+            <FlatList
+              data={displayedDevices}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              renderItem={renderGridItem}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              style={{ marginTop: 20 }}
+            />
+          )}
+
+          {/* แสดง grid view แบบไม่มีกราฟเมื่อ Modal เปิด */}
+          {viewMode === "grid" && showConfirm && (
+            <FlatList
+              data={displayedDevices}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleNavigate(item)}>
+                  <View style={styles.gridCard}>
+                    <View style={styles.topRow}>
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <View style={styles.statusDot} />
+                        <Text style={styles.deviceId}>{item.name}</Text>
+                      </View>
+                      <View style={{ flexDirection: "row", gap: 6 }}>
+                        <Ionicons
+                          name={
+                            item.bookmarked ? "bookmark" : "bookmark-outline"
+                          }
+                          size={16}
+                          color="#fff"
+                          onPress={() => handleBookmarkToggle(item.id)}
+                        />
+                        <TouchableOpacity
+                          onPress={() => confirmDelete(item.id)}
+                        >
+                          <Ionicons
+                            name="trash-outline"
+                            size={16}
+                            color="#ff4d4f"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    {/* ไม่แสดงกราฟในส่วนนี้ */}
+                    <View style={styles.rowCenter}>
+                      <Text style={styles.labelRed}>Fault</Text>
+                      <Text style={styles.labelGreen}>Normal</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+              columnWrapperStyle={{ justifyContent: "space-between" }}
+              style={{ marginTop: 20 }}
+            />
+          )}
+        </>
       )}
 
       <CreateDevice onCreate={handleCreate} />
@@ -377,18 +525,19 @@ const styles = StyleSheet.create({
   deviceCard: {
     backgroundColor: "#2d2d2d",
     borderRadius: 14,
-    padding: 15,
-    marginBottom: 15,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    marginBottom: 25,
   },
   deviceRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   deviceName: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "Koulen",
     flex: 1,
     marginLeft: 10,
@@ -407,14 +556,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   label: {
-    fontSize: 18,
+    fontSize: 15,
     color: "#fff",
     fontFamily: "Koulen",
     marginHorizontal: 5,
   },
+
   dateValue: {
     color: "#8c8c8c",
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Koulen",
   },
 
@@ -440,26 +590,33 @@ const styles = StyleSheet.create({
   },
   rowCenter: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     marginVertical: 4,
+  },
+  chartRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 8,
+    paddingHorizontal: 4,
+  },
+  chartCol: {
+    alignItems: "center",
+    flex: 1,
+  },
+  titleText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    marginTop: 2,
   },
 
   // Labels
-  orangeText: {
-    color: "#ff9248",
-    fontWeight: "bold",
-  },
-  grayText: {
-    color: "#ccc",
-    fontWeight: "bold",
-  },
   labelRed: {
-    color: "#ff5e5e",
-    fontWeight: "bold",
+    color: "#fff",
+    fontFamily: "Koulen",
   },
   labelGreen: {
-    color: "#3fde7f",
-    fontWeight: "bold",
+    color: "#fff",
+    fontFamily: "Koulen",
   },
 
   // View Mode Toggle
@@ -511,7 +668,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99999, // ค่าสูงกว่า CreateDevice
+    elevation: 20, // สูงกว่า CreateDevice
   },
+
   confirmModal: {
     backgroundColor: "#fff",
     borderRadius: 16,

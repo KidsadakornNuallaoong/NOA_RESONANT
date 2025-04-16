@@ -151,6 +151,8 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 9999, // 🔥 เพิ่มเข้าไป
+    elevation: 10, // 🔥 Android
   },
   fab: {
     position: "absolute",
@@ -166,6 +168,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 9999,
+    elevation: 10,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   modal: {
     backgroundColor: "#fff",
