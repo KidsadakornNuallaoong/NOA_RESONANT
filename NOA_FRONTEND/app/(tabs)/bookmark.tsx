@@ -159,7 +159,6 @@ export default function BookmarkScreen() {
             styles.deviceCard,
             {
               backgroundColor: isEven ? "#2d2d2d" : "#eff2fa",
-              borderWidth: 0.1,
             },
           ]}
         >
@@ -327,7 +326,7 @@ export default function BookmarkScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={{ fontSize: 32, fontWeight: "bold" }}>BOOKMARK</Text>
+        <Text style={{ fontSize: 32, fontFamily: "Koulen" }}>BOOKMARK</Text>
       </View>
       <View style={styles.headerRow}>
         <Text style={[styles.sectionTitle, { fontSize: 15 }]}>Bookmark</Text>
