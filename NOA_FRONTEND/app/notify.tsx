@@ -6,66 +6,81 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  connectMqtt,
+  disconnectMqtt,
+  initMqtt,
+  subscribeToTopic,
+} from "@/service/mqttService";
 
-const initialNotifications = [
-  {
-    type: "warning",
-    icon: require("../assets/images/Warning.png"),
-    title: "WARNING",
-    icontext: require("../assets/images/Vector1.png"),
-    message: "Critical Alert: Device 1×80AC requires attention",
-    details: "Imbalance: 90%   Overheating: 95%",
-    time: "20 min ago",
-    color: "#ff3b3b",
-  },
-  {
-    type: "caution",
-    icon: require("../assets/images/Caution.png"),
-    title: "CAUTION",
-    icontext: require("../assets/images/Vector2.png"),
-    message: "Device 1×80AC requires attention",
-    details: "Imbalance: 40%   Overheating: 35%",
-    time: "10 min ago",
-    color: "#fbc02d",
-  },
-  {
-    type: "caution",
-    icon: require("../assets/images/Caution.png"),
-    title: "CAUTION",
-    icontext: require("../assets/images/Vector2.png"),
-    message: "Device 1×80AC requires attention",
-    details: "Imbalance: 55%   Overheating: 45%",
-    time: "6 min ago",
-    color: "#fbc02d",
-  },
-  {
-    type: "success",
-    icon: require("../assets/images/Payment.png"),
-    title: "PAYMENT SUCCESSFUL",
-    icontext: require("../assets/images/Vector3.png"),
-    message: "Your payment was successful.",
-    details: "Thank you for your payment.",
-    time: "1 min ago",
-    color: "#00c853",
-  },
-  {
-    type: "expire",
-    icon: require("../assets/images/Expire.png"),
-    title: "YOUR PLAN WILL EXPIRE IN 3 DAYS.",
-    icontext: require("../assets/images/Vector4.png"),
-    message: "Please check your plan.",
-    details: "Thank you for Supported.",
-    time: "2 hours ago",
-    color: "#ff6f00",
-  },
-];
+interface NotificationItem {
+  type: "warning" | "caution" | "success" | "expire";
+  icon: any;
+  title: string;
+  icontext: any;
+  message: string;
+  details: string;
+  time: string;
+  color: string;
+}
+
+const iconMap = {
+  warning: require("../assets/images/Warning.png"),
+  caution: require("../assets/images/Caution.png"),
+  success: require("../assets/images/Payment.png"),
+  expire: require("../assets/images/Expire.png"),
+};
+
+const iconTextMap = {
+  warning: require("../assets/images/Vector1.png"),
+  caution: require("../assets/images/Vector2.png"),
+  success: require("../assets/images/Vector3.png"),
+  expire: require("../assets/images/Vector4.png"),
+};
+
+const colorMap = {
+  warning: "#ff3b3b",
+  caution: "#fbc02d",
+  success: "#00c853",
+  expire: "#ff6f00",
+};
 
 const Notification = () => {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
+  useEffect(() => {
+    initMqtt();
+    connectMqtt("broker.emqx.io", 8083, "client_" + Math.random(), () => {
+      subscribeToTopic("device/notify", (payload) => {
+        const parsed = JSON.parse(payload);
+        const type = parsed.type as keyof typeof iconMap;
+
+        const now = new Date();
+        const newNoti: NotificationItem = {
+          type,
+          icon: iconMap[type],
+          title: parsed.title || "ALERT",
+          icontext: iconTextMap[type],
+          message: parsed.message,
+          details: parsed.details || "",
+          time: now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          color: colorMap[type],
+        };
+
+        setNotifications((prev) => [newNoti, ...prev]);
+      });
+    });
+
+    return () => {
+      disconnectMqtt();
+    };
+  }, []);
   const handleClear = () => {
     setNotifications([]);
   };

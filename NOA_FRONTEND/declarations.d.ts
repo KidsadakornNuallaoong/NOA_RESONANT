@@ -4,3 +4,5 @@ declare module "*.svg" {
   const content: React.FC<SvgProps>;
   export default content;
 }
+declare module "react_native_mqtt";
+declare var Paho: any;
