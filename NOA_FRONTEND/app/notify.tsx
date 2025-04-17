@@ -6,26 +6,10 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  connectMqtt,
-  disconnectMqtt,
-  initMqtt,
-  subscribeToTopic,
-} from "@/service/mqttService";
-
-interface NotificationItem {
-  type: "warning" | "caution" | "success" | "expire";
-  icon: any;
-  title: string;
-  icontext: any;
-  message: string;
-  details: string;
-  time: string;
-  color: string;
-}
+import { useNotifications } from "@/context/NotificationContext";
 
 const iconMap = {
   warning: require("../assets/images/Warning.png"),
@@ -49,41 +33,7 @@ const colorMap = {
 };
 
 const Notification = () => {
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-
-  useEffect(() => {
-    initMqtt();
-    connectMqtt("broker.emqx.io", 8083, "client_" + Math.random(), () => {
-      subscribeToTopic("device/notify", (payload) => {
-        const parsed = JSON.parse(payload);
-        const type = parsed.type as keyof typeof iconMap;
-
-        const now = new Date();
-        const newNoti: NotificationItem = {
-          type,
-          icon: iconMap[type],
-          title: parsed.title || "ALERT",
-          icontext: iconTextMap[type],
-          message: parsed.message,
-          details: parsed.details || "",
-          time: now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          color: colorMap[type],
-        };
-
-        setNotifications((prev) => [newNoti, ...prev]);
-      });
-    });
-
-    return () => {
-      disconnectMqtt();
-    };
-  }, []);
-  const handleClear = () => {
-    setNotifications([]);
-  };
+  const { notifications, clearNotifications } = useNotifications();
 
   return (
     <View style={styles.container}>
@@ -95,7 +45,7 @@ const Notification = () => {
             </TouchableOpacity>
           </Link>
         </View>
-        <Text style={styles.headerText}>SUBSCRIPTION</Text>
+        <Text style={styles.headerText}>Notification</Text>
       </View>
 
       <View style={styles.box1}>
@@ -113,7 +63,10 @@ const Notification = () => {
 
       <View style={styles.box2}>
         <Text style={styles.todayText}>Today</Text>
-        <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
+        <TouchableOpacity
+          style={styles.clearButton}
+          onPress={clearNotifications}
+        >
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
@@ -131,13 +84,18 @@ const Notification = () => {
           {notifications.map((item, index) => (
             <View key={index} style={styles.notificationBox}>
               <View style={styles.row}>
-                <Image source={item.icon} style={styles.icon} />
+                <Image source={iconMap[item.type]} style={styles.icon} />
                 <View style={styles.textWrapper}>
                   <View style={styles.titleRow}>
-                    <Text style={[styles.title, { color: item.color }]}>
+                    <Text
+                      style={[styles.title, { color: colorMap[item.type] }]}
+                    >
                       {item.title}
                     </Text>
-                    <Image source={item.icontext} style={styles.iconText} />
+                    <Image
+                      source={iconTextMap[item.type]}
+                      style={styles.iconText}
+                    />
                   </View>
                   <Text style={styles.message}>
                     <Text style={styles.bold}>{item.message}</Text>
@@ -172,7 +130,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: "Koulen",
     color: "#000",
   },
   box1: {
@@ -239,7 +197,7 @@ const styles = StyleSheet.create({
   },
   notificationBox: {
     marginVertical: 10,
-    paddingBottom: 10,
+    padding: 10,
   },
   row: {
     flexDirection: "row",
