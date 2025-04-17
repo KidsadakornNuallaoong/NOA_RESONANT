@@ -89,7 +89,7 @@ const PredictionHisory: React.FC = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>PREDICTION HISTORY</Text>
+        <Text style={[styles.headerText,{fontFamily: "Koulen"}]}>PREDICTION HISTORY</Text>
       </View>
 
       <View style={styles.historyHeader}>
@@ -157,8 +157,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerText: {
-    fontSize: 30,
-    fontWeight: "bold",
+    fontSize: 32,
   },
   historyHeader: {
     flexDirection: "row",

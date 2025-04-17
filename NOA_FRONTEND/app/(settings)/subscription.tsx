@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
-    fontSize: 26,
-    fontWeight: "bold",
+    fontSize: 32,
+    fontFamily: "Koulen"
   },
   subtext: {
     color: "#3fde7f",
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "110%",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   planButton: {
     borderRadius: 10,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: "100%",
     height: 70,
-    marginBottom: 20,
+    marginBottom: 15,
     alignContent: "center",
     justifyContent: "center",
   },
@@ -210,6 +210,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   TextPlan: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
 });
