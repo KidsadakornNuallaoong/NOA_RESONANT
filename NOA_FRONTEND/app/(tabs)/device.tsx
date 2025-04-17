@@ -142,7 +142,6 @@ export default function DeviceScreen() {
             styles.deviceCard,
             {
               backgroundColor: isEven ? "#2d2d2d" : "#eff2fa",
-              borderWidth: 0.1,
             },
           ]}
         >
@@ -169,7 +168,7 @@ export default function DeviceScreen() {
               <Ionicons
                 name={item.bookmarked ? "bookmark" : "bookmark-outline"}
                 size={20}
-                color={isEven ? "#fff" : "#000"}
+                color={isEven ? "#40dd7f" : "#40dd7f"}
                 onPress={() => handleBookmarkToggle(item.id)}
               />
               <Ionicons
@@ -280,7 +279,7 @@ export default function DeviceScreen() {
             <Ionicons
               name={item.bookmarked ? "bookmark" : "bookmark-outline"}
               size={16}
-              color="#fff"
+              color="#40dd7f"
               onPress={() => handleBookmarkToggle(item.id)}
             />
             <Ionicons
@@ -360,7 +359,7 @@ export default function DeviceScreen() {
         </View>
       </View>
 
-      {displayedDevices.length === 0 ? (
+      {devices.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Image
             source={require("../../assets/images/NOA.png")}
@@ -376,7 +375,7 @@ export default function DeviceScreen() {
           {/* แสดง list view ตามปกติ */}
           {viewMode === "list" && (
             <FlatList
-              data={displayedDevices}
+              data={devices}
               keyExtractor={(item) => item.id}
               renderItem={renderDevice}
               style={{ marginTop: 20 }}
@@ -386,7 +385,7 @@ export default function DeviceScreen() {
           {/* แสดง grid view แบบมีกราฟเมื่อ Modal ไม่เปิด */}
           {viewMode === "grid" && !showConfirm && (
             <FlatList
-              data={displayedDevices}
+              data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}
               renderItem={renderGridItem}
@@ -398,7 +397,7 @@ export default function DeviceScreen() {
           {/* แสดง grid view แบบไม่มีกราฟเมื่อ Modal เปิด */}
           {viewMode === "grid" && showConfirm && (
             <FlatList
-              data={displayedDevices}
+              data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}
               renderItem={({ item }) => (

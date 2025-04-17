@@ -159,7 +159,6 @@ export default function BookmarkScreen() {
             styles.deviceCard,
             {
               backgroundColor: isEven ? "#2d2d2d" : "#eff2fa",
-              borderWidth: 0.1,
             },
           ]}
         >
