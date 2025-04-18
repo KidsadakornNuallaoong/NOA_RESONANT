@@ -1,95 +1,71 @@
-import { StyleSheet, Text, View, Image, ScrollView, ImageSourcePropType } from "react-native";
-import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  ImageSourcePropType,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { getToken } from "@/utils/secureStore";
+import { jwtDecode } from "jwt-decode";
 
 type AlertItem = {
   type: "WARNING" | "CAUTION";
-  icon: ImageSourcePropType;
   date: string;
   time: string;
   imbalance: string;
   overheating: string;
   timeAgo: string;
-  icontext?: ImageSourcePropType;
 };
 
-const alerts: AlertItem[] = [
-  {
-    type: "WARNING",
-    icon: require("../../assets/images/Warning.png"),
-    date: "13/1/2555",
-    time: "20:04:55PM",
-    imbalance: "90%",
-    overheating: "95%",
-    timeAgo: "20 min ago.",
-    icontext: require("../../assets/images/Vector1.png"),
-  },
-  {
-    type: "WARNING",
-    icon: require("../../assets/images/Warning.png"),
-    date: "23/1/2555",
-    time: "00:00:00AM",
-    imbalance: "70%",
-    overheating: "85%",
-    timeAgo: "20 min ago.",
-    icontext: require("../../assets/images/Vector1.png"),
-  },
-  {
-    type: "WARNING",
-    icon: require("../../assets/images/Warning.png"),
-    date: "2/2/2555",
-    time: "00:00:00AM",
-    imbalance: "80%",
-    overheating: "75%",
-    timeAgo: "20 min ago.",
-    icontext: require("../../assets/images/Vector1.png"),
-  },
-  {
-    type: "CAUTION",
-    icon: require("../../assets/images/Caution.png"),
-    date: "4/2/2555",
-    time: "00:00:00AM",
-    imbalance: "40%",
-    overheating: "50%",
-    timeAgo: "10 min ago.",
-    icontext: require("../../assets/images/Vector2.png"),
-  },
-  {
-    type: "CAUTION",
-    icon: require("../../assets/images/Caution.png"),
-    date: "11/2/2555",
-    time: "00:00:00AM",
-    imbalance: "50%",
-    overheating: "35%",
-    timeAgo: "10 min ago.",
-    icontext: require("../../assets/images/Vector2.png"),
-  },
-  {
-    type: "WARNING",
-    icon: require("../../assets/images/Warning.png"),
-    date: "18/3/2555",
-    time: "00:00:00AM",
-    imbalance: "87%",
-    overheating: "78%",
-    timeAgo: "20 min ago.",
-    icontext: require("../../assets/images/Vector1.png"),
-  },
-  {
-    type: "CAUTION",
-    icon: require("../../assets/images/Caution.png"),
-    date: "11/2/2555",
-    time: "00:00:00AM",
-    imbalance: "50%",
-    overheating: "35%",
-    timeAgo: "10 min ago.",
-    icontext: require("../../assets/images/Vector2.png"),
-  },
-];
+const iconMap = {
+  WARNING: require("../../assets/images/Warning.png"),
+  CAUTION: require("../../assets/images/Caution.png"),
+};
 
-const PredictionHisory: React.FC = () => {
+const iconTextMap = {
+  WARNING: require("../../assets/images/Vector1.png"),
+  CAUTION: require("../../assets/images/Vector2.png"),
+};
+
+const PredictionHistory: React.FC = () => {
+  const [predictions, setPredictions] = useState<AlertItem[]>([]);
+
+  useEffect(() => {
+    const fetchPredictionHistory = async () => {
+      try {
+        const token = await getToken();
+        const decoded: { userID: string } = jwtDecode(token!);
+        const userID = decoded.userID;
+
+        // waiting for history API
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/prediction-history?userID=${userID}`
+        );
+        const data = await res.json();
+
+        // เช็คตรงนี้
+        if (Array.isArray(data.predictions)) {
+          setPredictions(data.predictions);
+        } else {
+          setPredictions([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch predictions:", err);
+        setPredictions([]);
+      }
+    };
+
+    fetchPredictionHistory();
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.headerText,{fontFamily: "Koulen"}]}>PREDICTION HISTORY</Text>
+        <Text style={[styles.headerText, { fontFamily: "Koulen" }]}>
+          PREDICTION HISTORY
+        </Text>
       </View>
 
       <View style={styles.historyHeader}>
@@ -101,9 +77,9 @@ const PredictionHisory: React.FC = () => {
         />
       </View>
 
-      {alerts.map((alert, index) => (
+      {predictions.map((alert, index) => (
         <View key={index} style={styles.alertBox}>
-          <Image source={alert.icon} style={styles.alertIcon} />
+          <Image source={iconMap[alert.type]} style={styles.alertIcon} />
           <View style={styles.alertTextContainer}>
             <Text
               style={[
@@ -112,13 +88,11 @@ const PredictionHisory: React.FC = () => {
               ]}
             >
               {alert.type}
-              {alert.icontext && (
-                <Image
-                  source={alert.icontext}
-                  style={styles.icontext}
-                  resizeMode="contain"
-                />
-              )}
+              <Image
+                source={iconTextMap[alert.type]}
+                style={styles.icontext}
+                resizeMode="contain"
+              />
             </Text>
 
             <Text style={styles.alertDetail}>
@@ -144,7 +118,7 @@ const PredictionHisory: React.FC = () => {
   );
 };
 
-export default PredictionHisory;
+export default PredictionHistory;
 
 const styles = StyleSheet.create({
   container: {

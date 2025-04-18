@@ -26,6 +26,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ✅ Circular chart package
 import CircularProgress from "react-native-circular-progress-indicator";
+import { jwtDecode } from "jwt-decode";
+import { getToken } from "@/utils/secureStore";
 
 // ✅ Type for device
 interface Device {
@@ -34,6 +36,10 @@ interface Device {
   startDate: string;
   currentDate: string;
   bookmarked?: boolean;
+}
+
+interface JwtPayload {
+  userID: string;
 }
 
 export default function DeviceScreen() {
@@ -53,6 +59,47 @@ export default function DeviceScreen() {
       console.error("Failed to save devices", e);
     }
   };
+
+  // Wating for API
+  // ✅ Load devices from local storage
+  // const loadDevicesFromServer = async () => {
+  //   const token = await getToken();
+  //   if (!token) return [];
+
+  //   const decoded: JwtPayload = jwtDecode(token);
+  //   const userID = decoded.userID;
+
+  //   const API = `${process.env.EXPO_PUBLIC_API_URL}/getDevices`;
+
+  //   const response = await fetch(API, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ userID }),
+  //   });
+
+  //   if (!response.ok) throw new Error("Failed to fetch devices");
+
+  //   const data = await response.json();
+  //   return data.devices;
+  // };
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const fetchDevices = async () => {
+  //       const local = await loadDevices();
+  //       setDevices(local); // แสดง local ทันที
+
+  //       try {
+  //         const server = await loadDevicesFromServer();
+  //         setDevices(server); // อัปเดตด้วย server
+  //         saveDevices(server);
+  //       } catch (e) {
+  //         console.error("Server fetch failed:", e);
+  //       }
+  //     };
+  //     fetchDevices();
+  //   }, [])
+  // );
 
   // ✅ Load devices from local storage
   const loadDevices = async () => {
@@ -111,6 +158,43 @@ export default function DeviceScreen() {
     setShowConfirm(false);
     setDeleteId(null);
   };
+
+  // Waiting for Delete API
+  // ✅ Delete device from server (commented out for now)
+  // const handleConfirmedDelete = async () => {
+  //   if (!deleteId) return;
+
+  //   try {
+  //     const token = await getToken();
+  //     if (!token) return;
+
+  //     const decoded: JwtPayload = jwtDecode(token);
+  //     const userID = decoded.userID;
+
+  //     const API = `${process.env.EXPO_PUBLIC_API_URL}/deleteDevice`;
+
+  //     const response = await fetch(API, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ userID, deviceID: deleteId }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to delete from backend");
+  //     }
+
+  //     // delelete at frontend
+  //     const updated = devices.filter((d) => d.id !== deleteId);
+  //     setDevices(updated);
+  //     saveDevices(updated);
+  //   } catch (err) {
+  //     console.error("Delete device failed:", err);
+  //     Alert.alert("Error", "Unable to delete device from server.");
+  //   }
+
+  //   setShowConfirm(false);
+  //   setDeleteId(null);
+  // };
 
   // ✅ Update current date every second
   useEffect(() => {
@@ -445,7 +529,12 @@ export default function DeviceScreen() {
         </>
       )}
 
-      <CreateDevice onCreate={handleCreate} />
+      {/* Add CreateDevice component with higher z-index */}
+      <View style={styles.createDeviceContainer}>
+        <CreateDevice onCreate={handleCreate} />
+      </View>
+
+      {/* Modal with highest z-index */}
       <Modal
         visible={showConfirm}
         transparent
@@ -725,5 +814,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 25,
     fontWeight: "bold",
+  },
+  createDeviceContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 999,
+    elevation: 10,
   },
 });
