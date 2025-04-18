@@ -19,10 +19,6 @@ export const initNotificationWS = (
     }
   };
 
-  socket.onerror = (err) => {
-    console.error("❌ WebSocket error", err);
-  };
-
   socket.onclose = () => {
     console.log("❎ WebSocket disconnected");
   };
