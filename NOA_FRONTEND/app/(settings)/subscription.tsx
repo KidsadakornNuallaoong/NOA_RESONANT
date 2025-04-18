@@ -13,13 +13,10 @@ import {
 type Plan = {
   label: string;
   price: string;
-};
+} | null;
 
 const SubscriptionScreen: React.FC = () => {
-  const [selectedPlan, setSelectedPlan] = useState<Plan>({
-    label: "12 months",
-    price: "$9.00",
-  });
+  const [selectedPlan, setSelectedPlan] = useState<Plan>(null);
 
   const plans: Plan[] = [
     { label: "12", price: " months $9.00" },
@@ -62,12 +59,12 @@ const SubscriptionScreen: React.FC = () => {
       </Text>
 
       <View style={styles.planContainer}>
-        {plans.map((plan, index) => (
+        {plans.filter((plan): plan is Exclude<Plan, null> => plan !== null).map((plan, index) => (
           <TouchableOpacity
             key={index}
             style={[
               styles.planButton,
-              selectedPlan.label === plan.label && styles.selectedPlanButton,
+              selectedPlan && selectedPlan.label === plan.label && styles.selectedPlanButton,
             ]}
             onPress={() => setSelectedPlan(plan)}
           >
@@ -79,7 +76,9 @@ const SubscriptionScreen: React.FC = () => {
 
       <TouchableOpacity style={styles.getButton}>
         <Text style={styles.getButtonText}>
-          Get {selectedPlan.label} / {selectedPlan.price}
+          {selectedPlan 
+            ? `Get ${selectedPlan.label} / ${selectedPlan.price}` 
+            : "Please select your plan."}
         </Text>
       </TouchableOpacity>
 
