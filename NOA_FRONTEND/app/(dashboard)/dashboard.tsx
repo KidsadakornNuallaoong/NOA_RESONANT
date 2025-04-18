@@ -14,7 +14,7 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { useFonts } from "expo-font";
-import DeviceIcon from "../../assets/icons/assistant_device.svg";
+import DeviceIcon from "../../assets/icons/readiness_score.svg";
 // === Sensor Data ===
 const rawData = [
   { category: "Acceleration", values: { X: 28.356, Y: 16.258, Z: 16.935 } },
@@ -42,6 +42,11 @@ const sensorData = rawData.flatMap((item) => {
   }));
 });
 
+interface SensorItem {
+  label: string;
+  value: number;
+}
+
 export default function DashboardScreen() {
   const router = useRouter();
 
@@ -49,8 +54,6 @@ export default function DashboardScreen() {
   const [fontLoaded] = useFonts({
     Koulen: require("../../assets/fonts/Koulen-Regular.ttf"),
   });
-
-  // === Theme ===
 
   // === Time state ===
   const [dateStr, setDateStr] = useState("");
@@ -82,9 +85,9 @@ export default function DashboardScreen() {
 
   if (!fontLoaded) return <Text>Loading...</Text>;
 
-  const renderSensorItem = ({ item }: any) => (
+  const renderSensorItem = ({ item }: { item: SensorItem }) => (
     <View style={styles.sensorCard}>
-      <DeviceIcon color={"#000"} width={18} height={18} />
+      <DeviceIcon color="#2d2d2d" width={18} height={18} />
       <Text style={styles.sensorLabel}>{item.label}</Text>
       <Text style={styles.sensorValue}>{item.value.toFixed(2)}</Text>
     </View>
@@ -144,7 +147,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#EFF2FA",
   },
   header: {
     flexDirection: "row",
@@ -155,7 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: hp("2%"),
   },
   flatList: {
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#EFF2FA",
   },
   title: {
     fontSize: 20,
@@ -163,7 +166,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     flexDirection: "row",
-    backgroundColor: "#222",
+    backgroundColor: "#2d2d2d",
     padding: 15,
     height: 148,
     marginVertical: hp("7%"),
@@ -179,7 +182,7 @@ const styles = StyleSheet.create({
     fontFamily: "Koulen",
   },
   infoDate: {
-    color: "#d7d7d7",
+    color: "#fff",
     fontSize: 25,
     fontFamily: "Koulen",
   },
@@ -241,7 +244,7 @@ const styles = StyleSheet.create({
     paddingBottom: hp("10%"),
   },
   sensorCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#EFF2FA",
     borderRadius: 10,
     borderColor: "#ddd",
     alignItems: "center",
