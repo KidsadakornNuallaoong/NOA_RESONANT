@@ -12,6 +12,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import uuid from "react-native-uuid";
 import useDeviceIDSocket from "@/service/wsService";
+import { getToken } from "@/utils/secureStore";
+import { jwtDecode } from "jwt-decode";
+import * as Clipboard from "expo-clipboard";
 
 interface Props {
   onCreate: (device: {
@@ -21,13 +24,17 @@ interface Props {
     currentDate: string;
   }) => void;
 }
-
+interface JwtPayload {
+  userID: string;
+}
 const CreateDevice: React.FC<Props> = ({ onCreate }) => {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [deviceId, setDeviceId] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [deviceID, setDeviceID] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const now = new Date();
   const formatDate = (date: Date) =>
@@ -35,33 +42,77 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
       hour: "2-digit",
       minute: "2-digit",
     })}`;
-  // useDeviceIDSocket((id) => {
-  //   setDeviceId(id);
-  //   setStep(2);
-  // });
-
-  const handleNext = () => {
-    if (!name.trim()) return Alert.alert("Error", "Enter device name");
-    const id = (uuid.v4() as string).slice(0, 12);
-    setDeviceId(id);
-    setStep(2);
-  };
 
   // const handleNext = () => {
   //   if (!name.trim()) return Alert.alert("Error", "Enter device name");
-  //   // deviceId will come from WebSocket when ready
+  //   const id = (uuid.v4() as string).slice(0, 12);
+  //   setDeviceId(id);
+  //   setStep(2);
   // };
 
-  const handleConfirm = () => {
-    if (!password.trim()) return Alert.alert("Error", "Enter your password");
-    const device = {
-      id: deviceId,
-      name,
-      startDate: formatDate(now),
-      currentDate: formatDate(now),
-    };
-    onCreate(device);
-    reset();
+  const handleNext = async () => {
+    const API = `${process.env.EXPO_PUBLIC_API_URL}/generteDeviceID`;
+    if (!name.trim()) return Alert.alert("Error", "Enter device name");
+
+    try {
+      const response = await fetch(API);
+      const data = await response.json();
+      setDeviceID(data.deviceID);
+      setStep(2);
+    } catch (err) {
+      Alert.alert("Error", "Failed to fetch device ID");
+    }
+  };
+
+  const handleCopy = async () => {
+    await Clipboard.setStringAsync(deviceID);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000); // เปลี่ยนกลับภายใน 2 วิ
+  };
+
+  const handleConfirm = async () => {
+    if (!password.trim()) {
+      Alert.alert("Error", "Enter your password");
+      return;
+    }
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const decoded: JwtPayload = jwtDecode(token);
+      const userID = decoded.userID;
+      console.log("Sending to backend:", {
+        userID,
+        deviceID,
+        password,
+      });
+
+      const API = `${process.env.EXPO_PUBLIC_API_URL}/createDevice`;
+
+      const response = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userID, deviceID, password }),
+      });
+
+      if (!response.ok) {
+        Alert.alert("Error", "Failed to create device");
+        return;
+      }
+
+      const device = {
+        id: deviceID,
+        name,
+        startDate: formatDate(now),
+        currentDate: formatDate(now),
+      };
+
+      onCreate(device);
+      reset();
+    } catch (error) {
+      console.error("Create device error:", error);
+      Alert.alert("Error", "Something went wrong");
+    }
   };
 
   const reset = () => {
@@ -69,7 +120,7 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
     setStep(1);
     setName("");
     setPassword("");
-    setDeviceId("");
+    setDeviceID("");
   };
 
   return (
@@ -105,16 +156,40 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
               <>
                 <Text style={styles.title}>DEVICE ID GENERATED</Text>
                 <View style={styles.deviceIDBox}>
-                  <Text style={styles.deviceIDText}>{deviceId}</Text>
-                  <Ionicons name="copy-outline" size={20} color="#999" />
+                  <Text style={styles.deviceIDText}>
+                    Device ID :{" "}
+                    <Text style={{ fontWeight: "500", color: "gray" }}>
+                      {deviceID}
+                    </Text>
+                  </Text>
+                  <TouchableOpacity onPress={handleCopy}>
+                    <Ionicons
+                      name={copied ? "checkmark-outline" : "copy-outline"}
+                      size={20}
+                      color={copied ? "#3fde7f" : "#999"}
+                    />
+                  </TouchableOpacity>
                 </View>
-                <TextInput
-                  placeholder="Enter your password"
-                  secureTextEntry
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                />
+                <View style={styles.passwordRow}>
+                  <TextInput
+                    placeholder="Enter your password"
+                    secureTextEntry={!showPassword}
+                    style={[styles.inputPassword, { flex: 1 }]}
+                    value={password}
+                    onChangeText={setPassword}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off-outline" : "eye-outline"}
+                      size={22}
+                      color="#999"
+                      style={{ marginLeft: 10 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+
                 <View style={styles.row}>
                   <TouchableOpacity
                     style={styles.cancelBtn}
@@ -189,13 +264,30 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   input: {
-    width: "100%",
+    flexDirection: "row",
     backgroundColor: "#f0f5ff",
     borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-    marginBottom: 10,
+    justifyContent: "space-between",
+    width: "100%",
+    fontSize: 16,
+    paddingLeft: 16,
   },
+  inputPassword: {
+    flexDirection: "row",
+    backgroundColor: "#f0f5ff",
+    borderRadius: 10,
+    justifyContent: "space-between",
+    width: "100%",
+    fontSize: 16,
+  },
+  passwordRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0f5ff",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+  },
+
   row: {
     flexDirection: "row",
     width: "100%",
@@ -237,7 +329,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   deviceIDText: {
-    fontWeight: "bold",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });

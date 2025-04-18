@@ -48,7 +48,8 @@
     "react-native-svg": "^15.11.2",
     "react-native-uuid": "^2.0.3",
     "react-native-web": "~0.19.13",
-    "victory-native": "^41.16.2"
+    "victory-native": "^41.16.2",
+    "expo-clipboard": "~7.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
