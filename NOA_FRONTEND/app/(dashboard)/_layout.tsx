@@ -3,6 +3,7 @@ import { Tabs, useRouter } from "expo-router";
 import { TouchableOpacity, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import { Ionicons } from "@expo/vector-icons";
+import ExploreBottom from "@/components/ExploreBottom";
 
 export default function DashboardTabLayout() {
   return <DashboardLayout />;
@@ -16,24 +17,31 @@ const DashboardLayout = () => {
   const handleCategoryChange = (category: string) => {
     setCurrentCategory(category);
     if (category === "Dashboard") router.push("/dashboard");
+    if (category === "Acceleration") router.push("/acceleration");
+    if (category === "VelocityAngular") router.push("/velocityAngular");
+    if (category === "VibrationSpeed") router.push("/vibrationSpeed");
+    if (category === "VibrationAngle") router.push("/vibrationAngle");
+    if (category === "Vibration Displacement")
+      router.push("/vibrationDisplacement");
+    if (category === "Frequency") router.push("/frequency");
   };
 
   return (
     <View style={{ flex: 1 }}>
       <Tabs
-        // tabBar={() => (
-        //   <ExploreBottom onCategoryChanged={handleCategoryChange} />
-        // )}
+        tabBar={() => (
+          <ExploreBottom onCategoryChanged={handleCategoryChange} />
+        )}
         screenOptions={{ headerShown: true }}
       >
         {[
           { name: "dashboard", title: "Dashboard" },
-          // { name: "acceleration", title: "Acceleration" },
-          // { name: "velocityAngular", title: "Velocity Angular" },
-          // { name: "vibrationSpeed", title: "Vibration Speed" },
-          // { name: "vibrationAngle", title: "Vibration Angle" },
-          // { name: "vibrationDisplacement", title: "Vibration Displacement" },
-          // { name: "frequency", title: "Frequency" },
+          { name: "acceleration", title: "Acceleration" },
+          { name: "velocityAngular", title: "Velocity Angular" },
+          { name: "vibrationSpeed", title: "Vibration Speed" },
+          { name: "vibrationAngle", title: "Vibration Angle" },
+          { name: "vibrationDisplacement", title: "Vibration Displacement" },
+          { name: "frequency", title: "Frequency" },
         ].map((screen) => (
           <Tabs.Screen
             key={screen.name}

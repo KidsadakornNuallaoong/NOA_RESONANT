@@ -22,6 +22,7 @@ interface Props {
     name: string;
     startDate: string;
     currentDate: string;
+    usage: number;
   }) => void;
 }
 interface JwtPayload {
@@ -30,7 +31,7 @@ interface JwtPayload {
 const CreateDevice: React.FC<Props> = ({ onCreate }) => {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(1);
-  const [name, setName] = useState("");
+  const [deviceName, setDeviceName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [deviceID, setDeviceID] = useState("");
@@ -51,8 +52,8 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
   // };
 
   const handleNext = async () => {
-    const API = `${process.env.EXPO_PUBLIC_API_URL}/generteDeviceID`;
-    if (!name.trim()) return Alert.alert("Error", "Enter device name");
+    const API = `${process.env.EXPO_PUBLIC_API_URL}/device/generateDeviceID`;
+    if (!deviceName.trim()) return Alert.alert("Error", "Enter device name");
 
     try {
       const response = await fetch(API);
@@ -82,17 +83,18 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
       const decoded: JwtPayload = jwtDecode(token);
       const userID = decoded.userID;
       console.log("Sending to backend:", {
+        deviceName,
         userID,
         deviceID,
         password,
       });
 
-      const API = `${process.env.EXPO_PUBLIC_API_URL}/createDevice`;
+      const API = `${process.env.EXPO_PUBLIC_API_URL}/device/createDevice`;
 
       const response = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userID, deviceID, password }),
+        body: JSON.stringify({ deviceName, userID, deviceID, password }),
       });
 
       if (!response.ok) {
@@ -102,9 +104,10 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
 
       const device = {
         id: deviceID,
-        name,
+        name: deviceName,
         startDate: formatDate(now),
         currentDate: formatDate(now),
+        usage: 0,
       };
 
       onCreate(device);
@@ -118,7 +121,7 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
   const reset = () => {
     setVisible(false);
     setStep(1);
-    setName("");
+    setDeviceName("");
     setPassword("");
     setDeviceID("");
   };
@@ -140,8 +143,8 @@ const CreateDevice: React.FC<Props> = ({ onCreate }) => {
                 <TextInput
                   placeholder="Enter device name"
                   style={styles.input}
-                  value={name}
-                  onChangeText={setName}
+                  value={deviceName}
+                  onChangeText={setDeviceName}
                 />
                 <View style={styles.row}>
                   <TouchableOpacity style={styles.cancelBtn} onPress={reset}>

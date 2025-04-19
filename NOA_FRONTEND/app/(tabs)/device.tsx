@@ -1,5 +1,5 @@
 // ✅ React & React Native imports
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -28,11 +28,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { jwtDecode } from "jwt-decode";
 import { getToken } from "@/utils/secureStore";
+import { useNotificationCount } from "@/context/NotificationContext";
 
 // ✅ Type for device
 interface Device {
   id: string;
   name: string;
+  usage: number;
   startDate: string;
   currentDate: string;
   bookmarked?: boolean;
@@ -48,7 +50,7 @@ export default function DeviceScreen() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   // ✅ Save devices to local storage
@@ -60,46 +62,74 @@ export default function DeviceScreen() {
     }
   };
 
-  // Wating for API
+  const notificationCount = useNotificationCount();
+
+  const sortedDevices = useMemo(() => {
+    return [...devices].sort((a, b) => b.usage - a.usage);
+  }, [devices]);
+
   // ✅ Load devices from local storage
-  // const loadDevicesFromServer = async () => {
-  //   const token = await getToken();
-  //   if (!token) return [];
+  const loadDevicesFromServer = async () => {
+    const token = await getToken();
+    if (!token) return [];
 
-  //   const decoded: JwtPayload = jwtDecode(token);
-  //   const userID = decoded.userID;
+    const decoded: JwtPayload = jwtDecode(token);
+    const userID = decoded.userID;
 
-  //   const API = `${process.env.EXPO_PUBLIC_API_URL}/getDevices`;
+    const API = `${process.env.EXPO_PUBLIC_API_URL}/device/getDevices`;
 
-  //   const response = await fetch(API, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ userID }),
-  //   });
+    const response = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userID }),
+    });
 
-  //   if (!response.ok) throw new Error("Failed to fetch devices");
+    if (!response.ok) throw new Error("Failed to fetch devices");
 
-  //   const data = await response.json();
-  //   return data.devices;
-  // };
+    const rawData = await response.json();
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const fetchDevices = async () => {
-  //       const local = await loadDevices();
-  //       setDevices(local); // แสดง local ทันที
+    // ✅ แปลงข้อมูลให้ตรง interface
+    const devices: Device[] = rawData.map((item: any) => ({
+      id: item.DeviceID,
+      name: item.DeviceName,
+      usage: item.Usage,
+      startDate: formatDate(item.CreateDate),
+      currentDate: formatDate(item.CurrentDate),
+      bookmarked: item.Bookmark ?? false,
+    }));
 
-  //       try {
-  //         const server = await loadDevicesFromServer();
-  //         setDevices(server); // อัปเดตด้วย server
-  //         saveDevices(server);
-  //       } catch (e) {
-  //         console.error("Server fetch failed:", e);
-  //       }
-  //     };
-  //     fetchDevices();
-  //   }, [])
-  // );
+    return devices;
+  };
+
+  // ✅ แปลง ISO date เป็นรูปแบบที่ใช้ในแอป
+  const formatDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    return `${date.toLocaleDateString("th-TH")} - ${date.toLocaleTimeString(
+      [],
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    )}`;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDevices = async () => {
+        const local = await loadDevices();
+        setDevices(local); // แสดง local ทันที
+
+        try {
+          const server = await loadDevicesFromServer();
+          setDevices(server); // อัปเดตด้วย server
+          saveDevices(server);
+        } catch (e) {
+          console.error("Server fetch failed:", e);
+        }
+      };
+      fetchDevices();
+    }, [])
+  );
 
   // ✅ Load devices from local storage
   const loadDevices = async () => {
@@ -121,6 +151,13 @@ export default function DeviceScreen() {
     }, [])
   );
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    const loaded = await loadDevices(); // โหลดใหม่จาก local
+    setDevices(loaded);
+    setRefreshing(false);
+  }, []);
+
   // ✅ Toggle bookmark state
   const handleBookmarkToggle = (id: string) => {
     const updated = devices.map((d) =>
@@ -138,7 +175,13 @@ export default function DeviceScreen() {
   };
 
   // ✅ Navigate to dashboard with device ID
-  const handleNavigate = (device: Device) => {
+  const handleNavigate = async (device: Device) => {
+    const updatedDevices = devices.map((d) =>
+      d.id === device.id ? { ...d, usage: (d.usage || 0) + 1 } : d
+    );
+    setDevices(updatedDevices);
+    await AsyncStorage.setItem("DEVICES", JSON.stringify(updatedDevices));
+
     router.push({ pathname: "/dashboard", params: { id: device.id } });
   };
 
@@ -148,53 +191,53 @@ export default function DeviceScreen() {
     setShowConfirm(true);
   };
 
-  // ✅ Delete confirmed device
-  const handleConfirmedDelete = () => {
-    if (deleteId) {
-      const updated = devices.filter((d) => d.id !== deleteId);
-      setDevices(updated);
-      saveDevices(updated);
-    }
-    setShowConfirm(false);
-    setDeleteId(null);
-  };
-
-  // Waiting for Delete API
-  // ✅ Delete device from server (commented out for now)
-  // const handleConfirmedDelete = async () => {
-  //   if (!deleteId) return;
-
-  //   try {
-  //     const token = await getToken();
-  //     if (!token) return;
-
-  //     const decoded: JwtPayload = jwtDecode(token);
-  //     const userID = decoded.userID;
-
-  //     const API = `${process.env.EXPO_PUBLIC_API_URL}/deleteDevice`;
-
-  //     const response = await fetch(API, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ userID, deviceID: deleteId }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to delete from backend");
-  //     }
-
-  //     // delelete at frontend
+  // // ✅ Delete confirmed device
+  // const handleConfirmedDelete = () => {
+  //   if (deleteId) {
   //     const updated = devices.filter((d) => d.id !== deleteId);
   //     setDevices(updated);
   //     saveDevices(updated);
-  //   } catch (err) {
-  //     console.error("Delete device failed:", err);
-  //     Alert.alert("Error", "Unable to delete device from server.");
   //   }
-
   //   setShowConfirm(false);
   //   setDeleteId(null);
   // };
+
+  // Waiting for Delete API
+  // ✅ Delete device from server (commented out for now)
+  const handleConfirmedDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const decoded: JwtPayload = jwtDecode(token);
+      const userID = decoded.userID;
+
+      const API = `${process.env.EXPO_PUBLIC_API_URL}/device/deleteDevice`;
+
+      const response = await fetch(API, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userID, deviceID: deleteId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete from backend");
+      }
+
+      // delelete at frontend
+      const updated = devices.filter((d) => d.id !== deleteId);
+      setDevices(updated);
+      saveDevices(updated);
+    } catch (err) {
+      console.error("Delete device failed:", err);
+      Alert.alert("Error", "Unable to delete device from server.");
+    }
+
+    setShowConfirm(false);
+    setDeleteId(null);
+  };
 
   // ✅ Update current date every second
   useEffect(() => {
@@ -396,8 +439,15 @@ export default function DeviceScreen() {
           style={styles.logo}
         />
         <Link href={"/notify"} asChild>
-          <TouchableOpacity>
-            <Ionicons name="notifications" size={24} />
+          <TouchableOpacity style={{ position: "relative" }}>
+            <Ionicons name="notifications" size={24} color="#000" />
+            {notificationCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {notificationCount > 99 ? "99+" : notificationCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </Link>
       </View>
@@ -409,7 +459,7 @@ export default function DeviceScreen() {
         This is your most used device
       </Text>
 
-      <MostUsedSlider devices={devices.slice(0, 4)} />
+      <MostUsedSlider devices={sortedDevices.slice(0, 4)} />
 
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Device</Text>
@@ -463,6 +513,8 @@ export default function DeviceScreen() {
               keyExtractor={(item) => item.id}
               renderItem={renderDevice}
               style={{ marginTop: 20 }}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
             />
           )}
 
@@ -475,6 +527,8 @@ export default function DeviceScreen() {
               renderItem={renderGridItem}
               columnWrapperStyle={{ justifyContent: "space-between" }}
               style={{ marginTop: 20 }}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
             />
           )}
 
@@ -484,6 +538,8 @@ export default function DeviceScreen() {
               data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleNavigate(item)}>
                   <View style={styles.gridCard}>
@@ -588,6 +644,24 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 14,
   },
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    backgroundColor: "red",
+    borderRadius: 10,
+    minWidth: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",

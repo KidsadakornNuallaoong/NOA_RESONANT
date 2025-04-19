@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useNotifications } from "@/context/NotificationContext";
@@ -33,8 +33,12 @@ const colorMap = {
 };
 
 const Notification = () => {
-  const { notifications, clearNotifications } = useNotifications();
+  const { notifications, clearNotifications, markAllAsRead } =
+    useNotifications();
 
+  useEffect(() => {
+    markAllAsRead();
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
