@@ -13,6 +13,7 @@
 #include <PubSubClient.h>
 #include <cstdint>
 #include "SD_CARD_M.hpp"
+#include "Auth.hpp"
 
 // Function template for parseRes
 template <typename T>
@@ -23,6 +24,8 @@ T parseRes(unsigned char lowByte, unsigned char highByte) {
 #define DADDR_DEF 0x50
 #define MQTT_MAX_SIZE 1024
 
+const char* Rest_ip = "104.214.174.39:8000";
+
 HardwareSerial RS485(2); // Use UART2
 
 // Send data to server
@@ -32,6 +35,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 DataSchema D;
+AuthSchema A;
 
 GYRO gyro(DADDR_DEF);
 
@@ -58,33 +62,40 @@ void callback(char *topic, byte *payload, unsigned int length) {
 
 String toJson(DataSchema g){
     String jsonString = "{";
-    jsonString += "\"DeviceAddress\":\"" + String(DeviceADDR) + "\",";
-    jsonString += "\"X\":{";
-    jsonString += "\"Acceleration\":" + String(g.X.Acceleration) + ",";
-    jsonString += "\"VelocityAngular\":" + String(g.X.VelocityAngular) + ",";
-    jsonString += "\"VibrationSpeed\":" + String(g.X.VibrationSpeed) + ",";
-    jsonString += "\"VibrationAngle\":" + String(g.X.VibrationAngle) + ",";
-    jsonString += "\"VibrationDisplacement\":" + String(g.X.VibrationDisplacement) + ",";
-    jsonString += "\"Frequency\":" + String(g.X.Frequency);
-    jsonString += "},";
-    jsonString += "\"Y\":{";
-    jsonString += "\"Acceleration\":" + String(g.Y.Acceleration) + ",";
-    jsonString += "\"VelocityAngular\":" + String(g.Y.VelocityAngular) + ",";
-    jsonString += "\"VibrationSpeed\":" + String(g.Y.VibrationSpeed) + ",";
-    jsonString += "\"VibrationAngle\":" + String(g.Y.VibrationAngle) + ",";
-    jsonString += "\"VibrationDisplacement\":" + String(g.Y.VibrationDisplacement) + ",";\
-    jsonString += "\"Frequency\":" + String(g.Y.Frequency);
-    jsonString += "},";
-    jsonString += "\"Z\":{";
-    jsonString += "\"Acceleration\":" + String(g.Z.Acceleration) + ",";
-    jsonString += "\"VelocityAngular\":" + String(g.Z.VelocityAngular) + ",";
-    jsonString += "\"VibrationSpeed\":" + String(g.Z.VibrationSpeed) + ",";
-    jsonString += "\"VibrationAngle\":" + String(g.Z.VibrationAngle) + ",";
-    jsonString += "\"VibrationDisplacement\":" + String(g.Z.VibrationDisplacement) + ",";
-    jsonString += "\"Frequency\":" + String(g.Z.Frequency);
-    jsonString += "},";
-    jsonString += "\"Temperature\":" + String(g.Temperature);
+    String data = "{";
+    data += "\"DeviceAddress\":\"" + String(A.deviceID) + "\",";
+    data += "\"X\":{";
+    data += "\"Acceleration\":" + String(g.X.Acceleration) + ",";
+    data += "\"VelocityAngular\":" + String(g.X.VelocityAngular) + ",";
+    data += "\"VibrationSpeed\":" + String(g.X.VibrationSpeed) + ",";
+    data += "\"VibrationAngle\":" + String(g.X.VibrationAngle) + ",";
+    data += "\"VibrationDisplacement\":" + String(g.X.VibrationDisplacement) + ",";
+    data += "\"Frequency\":" + String(g.X.Frequency);
+    data += "},";
+    data += "\"Y\":{";
+    data += "\"Acceleration\":" + String(g.Y.Acceleration) + ",";
+    data += "\"VelocityAngular\":" + String(g.Y.VelocityAngular) + ",";
+    data += "\"VibrationSpeed\":" + String(g.Y.VibrationSpeed) + ",";
+    data += "\"VibrationAngle\":" + String(g.Y.VibrationAngle) + ",";
+    data += "\"VibrationDisplacement\":" + String(g.Y.VibrationDisplacement) + ",";\
+    data += "\"Frequency\":" + String(g.Y.Frequency);
+    data += "},";
+    data += "\"Z\":{";
+    data += "\"Acceleration\":" + String(g.Z.Acceleration) + ",";
+    data += "\"VelocityAngular\":" + String(g.Z.VelocityAngular) + ",";
+    data += "\"VibrationSpeed\":" + String(g.Z.VibrationSpeed) + ",";
+    data += "\"VibrationAngle\":" + String(g.Z.VibrationAngle) + ",";
+    data += "\"VibrationDisplacement\":" + String(g.Z.VibrationDisplacement) + ",";
+    data += "\"Frequency\":" + String(g.Z.Frequency);
+    data += "},";
+    data += "\"Temperature\":" + String(g.Temperature);
+    data += "}";
+
+    jsonString += "\"deviceID\":\"" + String(A.deviceID) + "\",";
+    jsonString += "\"userID\":\"" + String(A.userID) + "\",";
+    jsonString += "\"data\":" + data;
     jsonString += "}";
+    jsonString.replace(" ", ""); // Remove spaces
 
     return jsonString;
 }
@@ -146,7 +157,7 @@ void task1(void *pvParameters) {
 
             // * mqtt pub
             if (!client.connected()) {
-                client.connect(DeviceADDR.c_str(), (MQTT_USER.isEmpty() ? mqtt_uname : MQTT_USER.c_str()), (MQTT_PASS.isEmpty() ? mqtt_pass : MQTT_PASS.c_str()));
+                client.connect(A.deviceID.c_str(), (MQTT_USER.isEmpty() ? mqtt_uname : MQTT_USER.c_str()), (MQTT_PASS.isEmpty() ? mqtt_pass : MQTT_PASS.c_str()));
             }
 
             client.publish("vibration", jsonString.c_str());
@@ -156,7 +167,7 @@ void task1(void *pvParameters) {
             Serial.println("WiFi Disconnected!");
 
             //  reconnect
-            WiFi.begin(SSID, PASSWORD);
+            WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
             Serial.print("Reconnecting to WiFi");
             while (WiFi.waitForConnectResult() != WL_CONNECTED) {
                 Serial.print(".");
@@ -170,45 +181,6 @@ void task1(void *pvParameters) {
 
 void task2(void *pvParameters) {
     for (;;) {
-        // if (WiFi.status() == WL_CONNECTED) {
-        //     String jsonString = toJson(D);
-
-        //     // http.begin("http://172.20.10.3:8000/store");
-        //     // http.addHeader("Content-Type", "application/json");
-
-        //     // int httpResponseCode = http.POST(jsonString);
-
-        //     // if (httpResponseCode > 0) {
-        //     //     String response = http.getString();
-        //     //     Serial.println(httpResponseCode);
-        //     //     Serial.println(response);
-        //     // } else {
-
-        //     //     Serial.println("Error on sending POST request");
-        //     // }
-
-
-        //     // * mqtt pub
-        //     if (!client.connected()) {
-        //         client.connect("ESP32Client", mqtt_uname, mqtt_pass);
-        //     }
-
-        //     client.publish("vibration", jsonString.c_str());
-        //     Serial.println("Data sent to MQTT");
-
-        //     delay(50);
-        // } else {
-        //     Serial.println("WiFi Disconnected!");
-
-        //     //  reconnect
-        //     WiFi.begin(SSID, PASSWORD);
-        //     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-        //         Serial.println("WiFi Failed!");
-        //         while (1) {
-        //             delay(100);
-        //         }
-        //     }
-        // }
     }
 }
 
@@ -265,11 +237,15 @@ void setup() {
         line.trim();
 
         if (line.startsWith("DEVICE_ADDR=")) {
-            DeviceADDR = stringGuard(line.substring(12));
-        } else if (line.startsWith("SSID=")) {
-            SSID = stringGuard(line.substring(5));
-        } else if (line.startsWith("PASSWORD=")) {
-            PASSWORD = stringGuard(line.substring(9));
+            A.deviceID = stringGuard(line.substring(12));
+        } else if (line.startsWith("EMAIL=")) {
+            A.email = stringGuard(line.substring(6));
+        } else if (line.startsWith("PASS=")) {
+            A.password = stringGuard(line.substring(5));
+        } else if (line.startsWith("WIFI_SSID=")) {
+            WIFI_SSID = stringGuard(line.substring(10));
+        } else if (line.startsWith("WIFI_PASSWORD=")) {
+            WIFI_PASSWORD = stringGuard(line.substring(14));
         } else if (line.startsWith("MQTT_SERVER=")) {
             MQTT_SERVER = stringGuard(line.substring(12));
         } else if (line.startsWith("MQTT_USER=")) {
@@ -287,13 +263,18 @@ void setup() {
     
     Serial.println("Loaded configuration");
 
-    while (DeviceADDR.isEmpty()) {
-        Serial.println("Device Address is empty, please set it first");
+    while (A.deviceID.isEmpty() || A.email.isEmpty() || A.password.isEmpty()) {
+        Serial.println("Missing configuration data in file");
+        Serial.println("Please check the config file and restart the device.");
         delay(100);
     }
+    Serial.println("Configuration data loaded successfully");
+    Serial.println("Device ID: " + A.deviceID);
+    Serial.println("Email: " + A.email);
+    Serial.println("Password: " + String(A.password.length(), '*'));
 
     // * setup WIFI
-    WiFi.begin(SSID, PASSWORD);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
@@ -303,6 +284,31 @@ void setup() {
     Serial.println("Connected to the WiFi network");
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
+
+    String auth = "{\"email\":\"" + A.email + "\",\"password\":\"" + A.password + "\",\"deviceID\":\"" + A.deviceID + "\"}";
+    
+    // send to server
+    http.begin("http://" + String(Rest_ip) + "/authendevice"); // Specify destination for HTTP request
+    http.addHeader("Content-Type", "application/json"); // Specify content-type header
+
+    int httpResponseCode = http.POST(auth); // Send the actual POST request
+    Serial.println("HTTP Response Code: " + String(httpResponseCode));
+    if (httpResponseCode > 0) {
+        String response = http.getString(); // Get the response to the request
+        Serial.println("Response: " + response); // Print return value
+
+        // * get userID
+        int startIndex = response.indexOf("userID") + 9; // Find the index of "userID" and add 9 to skip to the value
+        int endIndex = response.indexOf("\"", startIndex);
+        String userID = response.substring(startIndex, endIndex);
+        Serial.println("UserID: " + userID);
+
+        A.userID = userID;
+    } else {
+        Serial.print("Error code: ");
+        Serial.println(httpResponseCode);
+    }
+    http.end(); // Free resources
 
     // * connect to mqtt
     client.setServer((MQTT_SERVER.isEmpty() ? mqtt_server : MQTT_SERVER.c_str()), MQTT_PORT);
