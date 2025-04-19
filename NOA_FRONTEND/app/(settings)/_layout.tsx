@@ -7,8 +7,14 @@ SplashScreen.preventAutoHideAsync();
 export default function SettingLayout() {
   return (
     <Stack>
-      <Stack.Screen name="account" options={{ presentation: "modal" }} />
-      <Stack.Screen name="credit" options={{ presentation: "modal" }} />
+      <Stack.Screen
+        name="account"
+        options={{ headerShown: false, presentation: "modal" }}
+      />
+      <Stack.Screen
+        name="credit"
+        options={{ headerShown: false, presentation: "modal" }}
+      />
       <Stack.Screen
         name="subscription"
         options={{ headerShown: false, presentation: "modal" }}

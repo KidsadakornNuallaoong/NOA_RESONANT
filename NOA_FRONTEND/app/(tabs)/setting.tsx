@@ -119,16 +119,20 @@ export default function SettingScreen() {
       {/* Account */}
       <ScrollView style={styles.card}>
         <Text style={[styles.sectionTitle]}>ACCOUNT SETTING</Text>
-        <TouchableOpacity style={styles.optionRow}>
-          <Ionicons name="person-circle" size={24} color="#3182ce" />
-          <Text style={styles.optionLabel}>Account</Text>
-          <MaterialIcons name="keyboard-arrow-right" size={24} color="#aaa" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.optionRow}>
-          <Ionicons name="card" size={24} color="#3182ce" />
-          <Text style={styles.optionLabel}>Credit</Text>
-          <MaterialIcons name="keyboard-arrow-right" size={24} color="#aaa" />
-        </TouchableOpacity>
+        <Link href={"/account"} asChild>
+          <TouchableOpacity style={styles.optionRow}>
+            <Ionicons name="person-circle" size={24} color="#3182ce" />
+            <Text style={styles.optionLabel}>Account</Text>
+            <MaterialIcons name="keyboard-arrow-right" size={24} color="#aaa" />
+          </TouchableOpacity>
+        </Link>
+        <Link href={"/credit"} asChild>
+          <TouchableOpacity style={styles.optionRow}>
+            <Ionicons name="card" size={24} color="#3182ce" />
+            <Text style={styles.optionLabel}>Credit</Text>
+            <MaterialIcons name="keyboard-arrow-right" size={24} color="#aaa" />
+          </TouchableOpacity>
+        </Link>
 
         {/* Themes setting */}
         <Text style={styles.sectionTitle}>THEME SETTING</Text>
@@ -211,14 +215,14 @@ const styles = StyleSheet.create({
     marginTop: -20,
     backgroundColor: "#fff",
     marginHorizontal: 20,
-    padding: 20,
+    padding: 30,
     borderRadius: 20,
   },
   sectionTitle: {
     fontSize: 20,
     fontFamily: "Koulen",
     color: "#4d4d4d",
-    marginTop: 20,
+    marginTop: 5,
     marginBottom: 10,
   },
   optionRow: {

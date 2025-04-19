@@ -15,6 +15,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DeviceIcon from "../../assets/icons/readiness_score_outlined.svg";
 import Calendar from "../../assets/icons/Vector.svg";
 import CircularProgress from "react-native-circular-progress-indicator";
+import { getToken } from "@/utils/secureStore";
+import { jwtDecode } from "jwt-decode";
 
 interface Device {
   id: string;
@@ -24,11 +26,16 @@ interface Device {
   bookmarked?: boolean;
 }
 
+interface JwtPayload {
+  userID: string;
+}
+
 export default function BookmarkScreen() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   const saveDevices = async (devices: Device[]) => {
@@ -39,15 +46,78 @@ export default function BookmarkScreen() {
     }
   };
 
-  const loadDevices = async () => {
-    try {
-      const json = await AsyncStorage.getItem("DEVICES");
-      return json != null ? JSON.parse(json) : [];
-    } catch (e) {
-      console.error("Failed to load devices", e);
-      return [];
-    }
+  // const loadDevices = async () => {
+  //   try {
+  //     const json = await AsyncStorage.getItem("DEVICES");
+  //     return json != null ? JSON.parse(json) : [];
+  //   } catch (e) {
+  //     console.error("Failed to load devices", e);
+  //     return [];
+  //   }
+  // };
+
+  const loadDevicesFromServer = async () => {
+    const token = await getToken();
+    if (!token) return [];
+
+    const decoded: JwtPayload = jwtDecode(token);
+    const userID = decoded.userID;
+
+    const API = `${process.env.EXPO_PUBLIC_API_URL}/device/getDevices`;
+
+    const response = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userID }),
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch devices");
+    const data = await response.json();
+
+    // ✅ คัดกรองเฉพาะ device ที่ Bookmark = true
+    const bookmarkedDevices = data
+      .filter((d: any) => d.Bookmark === true)
+      .map((d: any) => ({
+        id: d.DeviceID,
+        name: d.DeviceName,
+        startDate: new Date(d.CreateDate).toLocaleDateString("th-TH"),
+        currentDate: formatCurrentDate(),
+        bookmarked: d.Bookmark,
+        usage: d.Usage,
+        status: d.Status,
+      }));
+
+    return bookmarkedDevices;
   };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDevices = async () => {
+        try {
+          const serverDevices = await loadDevicesFromServer();
+          setDevices(serverDevices);
+          saveDevices(serverDevices); // เก็บไว้ local (option)
+        } catch (e) {
+          console.error("Error loading from server:", e);
+        }
+      };
+      fetchDevices();
+    }, [])
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+
+    const loaded = await loadDevicesFromServer();
+    const currentDateString = formatCurrentDate();
+    const updatedDevices = loaded.map((device: Device) => ({
+      ...device,
+      currentDate: currentDateString,
+    }));
+
+    setDevices(updatedDevices);
+    saveDevices(updatedDevices);
+    setRefreshing(false);
+  }, []);
 
   // Format start date (kept as is)
   const formatStartDate = (date: Date) => {
@@ -104,23 +174,6 @@ export default function BookmarkScreen() {
     return () => clearInterval(interval);
   }, [updateCurrentDates]);
 
-  // Load devices when screen gets focus
-  useFocusEffect(
-    useCallback(() => {
-      loadDevices().then((loaded) => {
-        // Update current dates when devices are loaded
-        const currentDateString = formatCurrentDate();
-        const updatedDevices = loaded.map((device: Device) => ({
-          ...device,
-          currentDate: currentDateString,
-        }));
-        setDevices(updatedDevices);
-        // Save the updated devices
-        saveDevices(updatedDevices);
-      });
-    }, [])
-  );
-
   const handleBookmarkToggle = (id: string) => {
     const updated = devices.map((d) =>
       d.id === id ? { ...d, bookmarked: !d.bookmarked } : d
@@ -147,8 +200,6 @@ export default function BookmarkScreen() {
     setShowConfirm(false);
     setDeleteId(null);
   };
-
-  const displayedDevices = devices.filter((d) => d.bookmarked);
 
   const renderDevice = ({ item, index }: { item: Device; index: number }) => {
     const isEven = index % 2 === 0;
@@ -363,7 +414,7 @@ export default function BookmarkScreen() {
         This is your bookmarked device.
       </Text>
 
-      {displayedDevices.length === 0 ? (
+      {devices.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Image
             source={require("../../assets/images/NOA.png")}
@@ -379,31 +430,37 @@ export default function BookmarkScreen() {
           {/* แสดง list view ตามปกติ */}
           {viewMode === "list" && (
             <FlatList
-              data={displayedDevices}
+              data={devices}
               keyExtractor={(item) => item.id}
               renderItem={renderDevice}
               style={{ marginTop: 20 }}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
             />
           )}
 
           {/* แสดง grid view แบบมีกราฟเมื่อ Modal ไม่เปิด */}
           {viewMode === "grid" && !showConfirm && (
             <FlatList
-              data={displayedDevices}
+              data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}
               renderItem={renderGridItem}
               columnWrapperStyle={{ justifyContent: "space-between" }}
               style={{ marginTop: 20 }}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
             />
           )}
 
           {/* แสดง grid view แบบไม่มีกราฟเมื่อ Modal เปิด */}
           {viewMode === "grid" && showConfirm && (
             <FlatList
-              data={displayedDevices}
+              data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}
+              refreshing={refreshing}
+              onRefresh={onRefresh}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleNavigate(item)}>
                   <View style={styles.gridCard}>

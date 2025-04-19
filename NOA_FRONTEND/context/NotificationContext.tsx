@@ -1,3 +1,4 @@
+// ✅ NotificationContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   initNotificationWS,
@@ -6,17 +7,19 @@ import {
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
 
-interface NotificationItem {
+export interface NotificationItem {
   type: "warning" | "caution" | "success" | "expire";
   title: string;
   message: string;
   details: string;
   time: string;
+  read?: boolean; // ✅ เพิ่มฟิลด์ read
 }
 
 interface NotificationContextType {
   notifications: NotificationItem[];
   clearNotifications: () => void;
+  markAllAsRead: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -30,6 +33,13 @@ export const useNotifications = (): NotificationContextType => {
       "useNotifications must be used within a NotificationProvider"
     );
   return context;
+};
+
+// ✅ Hook สำหรับแสดงจำนวน noti ที่ยังไม่ได้อ่าน
+export const useNotificationCount = () => {
+  const context = useContext(NotificationContext);
+  if (!context) throw new Error("Must use within NotificationProvider");
+  return context.notifications.filter((n) => !n.read).length;
 };
 
 export const NotificationProvider = ({
@@ -56,6 +66,7 @@ export const NotificationProvider = ({
             hour: "2-digit",
             minute: "2-digit",
           }),
+          read: false,
         };
         setNotifications((prev) => [newNoti, ...prev]);
       });
@@ -67,8 +78,14 @@ export const NotificationProvider = ({
 
   const clearNotifications = () => setNotifications([]);
 
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
   return (
-    <NotificationContext.Provider value={{ notifications, clearNotifications }}>
+    <NotificationContext.Provider
+      value={{ notifications, clearNotifications, markAllAsRead }}
+    >
       {children}
     </NotificationContext.Provider>
   );

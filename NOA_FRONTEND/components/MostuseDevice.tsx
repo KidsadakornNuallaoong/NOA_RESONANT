@@ -1,5 +1,6 @@
+import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
-import { Image, ViewToken } from "react-native";
+import { Image, TouchableOpacity, ViewToken } from "react-native";
 import {
   View,
   Text,
@@ -12,12 +13,13 @@ import {
 const screenWidth = Dimensions.get("window").width;
 
 interface MostUsedProps {
-  devices: { id: string; name: string }[];
+  devices: { id: string; name: string; usage: number }[];
 }
 
 const MostUsedSlider: React.FC<MostUsedProps> = ({ devices }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   const viewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -47,20 +49,26 @@ const MostUsedSlider: React.FC<MostUsedProps> = ({ devices }) => {
         onViewableItemsChanged={viewableItemsChanged}
         viewabilityConfig={viewConfig}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.cardRow}>
-              <Image
-                source={require("../assets/images/Graph.png")}
-                style={styles.graphIcon}
-              />
-              <View>
-                <Text style={styles.deviceTitle}>
-                  Device Address: {item.name}
-                </Text>
-                <Text style={styles.graphLabel}>Graph: scatter plot</Text>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({ pathname: "/dashboard", params: { id: item.id } })
+            }
+          >
+            <View style={styles.card}>
+              <View style={styles.cardRow}>
+                <Image
+                  source={require("../assets/images/Graph.png")}
+                  style={styles.graphIcon}
+                />
+                <View>
+                  <Text style={styles.deviceTitle}>
+                    Device Address: {item.name}
+                  </Text>
+                  <Text style={styles.graphLabel}>Graph: Linear plot</Text>
+                </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
       />
       {/* Dot Indicator */}
