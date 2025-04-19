@@ -174,23 +174,23 @@ export default function DeviceScreen() {
     try {
       const token = await getToken();
       if (!token) return;
-  
+
       const decoded: JwtPayload = jwtDecode(token);
       const userID = decoded.userID;
-  
+
       const updatedDevices = devices.map((device) => {
         if (device.id === id) {
           return { ...device, bookmarked: !device.bookmarked };
         }
         return device;
       });
-  
+
       setDevices(updatedDevices);
       await AsyncStorage.setItem("DEVICES", JSON.stringify(updatedDevices));
-  
+
       const toggledDevice = updatedDevices.find((d) => d.id === id);
       const API = `${process.env.EXPO_PUBLIC_API_URL}/device/changeBookmark`;
-  
+
       // ✅ ส่งข้อมูลไป backend เพื่อบันทึก Bookmark ใหม่
       await fetch(API, {
         method: "PUT",
@@ -201,7 +201,6 @@ export default function DeviceScreen() {
           bookmark: toggledDevice?.bookmarked ?? false,
         }),
       });
-  
     } catch (error) {
       console.error("Failed to update bookmark:", error);
     }
@@ -221,8 +220,12 @@ export default function DeviceScreen() {
     );
     setDevices(updatedDevices);
     await AsyncStorage.setItem("DEVICES", JSON.stringify(updatedDevices));
+    const token = await getToken();
+    if (!token) return;
 
-    router.push({ pathname: "/dashboard", params: { id: device.id } });
+    const decoded: JwtPayload = jwtDecode(token);
+    const userID = decoded.userID;
+    router.push({ pathname: "/dashboard", params: { id: device.id, userID } });
   };
 
   // ✅ Prepare to show delete confirmation

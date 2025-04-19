@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -49,6 +49,13 @@ interface SensorItem {
 
 export default function DashboardScreen() {
   const router = useRouter();
+  // Get ID and UserID from URL params
+  const { id, userID } = useLocalSearchParams();
+
+  useEffect(() => {
+    console.log("Device ID:", id);
+    console.log("User ID:", userID);
+  }, []);
 
   // === Fonts ===
   const [fontLoaded] = useFonts({
