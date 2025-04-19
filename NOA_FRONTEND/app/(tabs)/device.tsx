@@ -150,21 +150,61 @@ export default function DeviceScreen() {
       });
     }, [])
   );
-
+  // refresh realtime when slide down
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    const loaded = await loadDevices(); // โหลดใหม่จาก local
-    setDevices(loaded);
-    setRefreshing(false);
+    try {
+      // Fetch from server instead of local storage
+      const serverDevices = await loadDevicesFromServer();
+      setDevices(serverDevices);
+      // Update local storage with fresh server data
+      saveDevices(serverDevices);
+    } catch (e) {
+      console.error("Refresh failed:", e);
+      // Fallback to local data if server fetch fails
+      const localDevices = await loadDevices();
+      setDevices(localDevices);
+    } finally {
+      setRefreshing(false);
+    }
   }, []);
 
   // ✅ Toggle bookmark state
-  const handleBookmarkToggle = (id: string) => {
-    const updated = devices.map((d) =>
-      d.id === id ? { ...d, bookmarked: !d.bookmarked } : d
-    );
-    setDevices(updated);
-    saveDevices(updated);
+  const handleBookmarkToggle = async (id: string) => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+  
+      const decoded: JwtPayload = jwtDecode(token);
+      const userID = decoded.userID;
+  
+      const updatedDevices = devices.map((device) => {
+        if (device.id === id) {
+          return { ...device, bookmarked: !device.bookmarked };
+        }
+        return device;
+      });
+  
+      setDevices(updatedDevices);
+      await AsyncStorage.setItem("DEVICES", JSON.stringify(updatedDevices));
+  
+      const toggledDevice = updatedDevices.find((d) => d.id === id);
+      const API = `${process.env.EXPO_PUBLIC_API_URL}/device/changeBookmark`;
+  
+      // ✅ ส่งข้อมูลไป backend เพื่อบันทึก Bookmark ใหม่
+      await fetch(API, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userID,
+          deviceID: id,
+          bookmark: toggledDevice?.bookmarked ?? false,
+        }),
+      });
+  
+    } catch (error) {
+      console.error("Failed to update bookmark:", error);
+    }
   };
 
   // ✅ Create device and save
@@ -428,8 +468,6 @@ export default function DeviceScreen() {
       </View>
     </TouchableOpacity>
   );
-
-  const displayedDevices = devices.filter((d) => !d.bookmarked);
 
   return (
     <View style={styles.container}>
