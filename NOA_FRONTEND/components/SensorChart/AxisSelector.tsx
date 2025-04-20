@@ -31,12 +31,12 @@ const AxisSelector = ({ selectedAxes, setSelectedAxes }: Props) => {
           checked={selectedAxes[axis]}
           onPress={() => toggleAxis(axis)}
           size={30}
-          checkedColor={axisColors[axis]} // ✅ สีตามแกน
+          checkedColor={axisColors[axis]}
           containerStyle={styles.checkbox}
           textStyle={{
             fontWeight: "bold",
             fontSize: 20,
-            color: axisColors[axis], // ✅ ให้ตัวอักษรมีสีเดียวกันด้วย
+            color: "#000",
           }}
         />
       ))}

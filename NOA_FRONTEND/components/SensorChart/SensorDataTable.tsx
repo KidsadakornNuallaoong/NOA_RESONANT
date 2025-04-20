@@ -14,8 +14,13 @@ interface Props {
 }
 
 const SensorDataTable = ({ title, unitLabel, data }: Props) => {
-  const renderRow = ({ item }: { item: Row }) => (
-    <View style={styles.row}>
+  const renderRow = ({ item, index }: { item: Row; index: number }) => (
+    <View
+      style={[
+        styles.row,
+        { backgroundColor: index % 2 === 0 ? "#ffffff" : "#f2f4fa" },
+      ]}
+    >
       <Text style={styles.value}>{item.x.toFixed(2)}</Text>
       <Text style={styles.value}>{item.y.toFixed(2)}</Text>
       <Text style={styles.value}>{item.z.toFixed(2)}</Text>
@@ -35,7 +40,7 @@ const SensorDataTable = ({ title, unitLabel, data }: Props) => {
         </View>
       </View>
       <FlatList
-        data={data}
+        data={data.slice(0, 10)}
         keyExtractor={(_, i) => i.toString()}
         renderItem={renderRow}
       />
@@ -73,8 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "#f2f4fa",
-    paddingVertical: 12,
-    marginBottom: 30,
+    paddingVertical: 15,
   },
   value: {
     fontSize: 16,
