@@ -4,6 +4,7 @@ import { TouchableOpacity, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import { Ionicons } from "@expo/vector-icons";
 import ExploreBottom from "@/components/ExploreBottom";
+import DropdownMenu from "@/components/DropdownMenu";
 
 export default function DashboardTabLayout() {
   return <DashboardLayout />;
@@ -47,23 +48,34 @@ const DashboardLayout = () => {
             key={screen.name}
             name={screen.name}
             options={{
-              headerTitleAlign: "center",
-              title: screen.title,
               headerTransparent: true,
+              headerTitleAlign: "center",
+
               headerLeft: () => (
-                <TouchableOpacity
-                  onPress={() => navigation.goBack()}
-                  style={{ marginLeft: 15 }}
-                >
-                  <Text style={{ fontSize: 18, color: "#000" }}>
+                <View style={{ marginTop: 20 }}>
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ marginLeft: 35 }}
+                  >
                     <Ionicons
                       name="chevron-back-outline"
-                      size={30}
-                      style={{ alignItems: "center" }}
-                      color={"#000"}
+                      size={24}
+                      color="#000"
                     />
+                  </TouchableOpacity>
+                </View>
+              ),
+              headerTitle: () => (
+                <View style={{ marginTop: 20 }}>
+                  <Text style={{ fontSize: 25, fontFamily: "Koulen" }}>
+                    {screen.title.toUpperCase()}
                   </Text>
-                </TouchableOpacity>
+                </View>
+              ),
+              headerRight: () => (
+                <View style={{ marginTop: 20, marginRight: 35 }}>
+                  <DropdownMenu />
+                </View>
               ),
             }}
           />
