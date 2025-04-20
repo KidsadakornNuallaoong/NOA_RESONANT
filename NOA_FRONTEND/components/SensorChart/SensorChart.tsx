@@ -53,7 +53,7 @@ const SensorChart = ({
         const payload = JSON.parse(event.data);
         const d = payload.data;
         const time = Date.now();
-
+        const MAX_RECORDS = 200;
         const newReading: SensorReading = {
           datetime: new Date().toISOString(),
           x: {
@@ -83,15 +83,15 @@ const SensorChart = ({
         };
 
         setXData((prev) => [
-          ...prev.slice(-19),
+          ...prev.slice(-MAX_RECORDS + 1),
           { x: time, y: newReading.x[sensorKey] },
         ]);
         setYData((prev) => [
-          ...prev.slice(-19),
+          ...prev.slice(-MAX_RECORDS + 1),
           { x: time, y: newReading.y[sensorKey] },
         ]);
         setZData((prev) => [
-          ...prev.slice(-19),
+          ...prev.slice(-MAX_RECORDS + 1),
           { x: time, y: newReading.z[sensorKey] },
         ]);
 
@@ -101,7 +101,7 @@ const SensorChart = ({
             y: newReading.y[sensorKey],
             z: newReading.z[sensorKey],
           },
-          ...prev.slice(0, 9),
+          ...prev.slice(0, MAX_RECORDS + 1),
         ]);
       } catch (error) {
         console.error("WebSocket data error:", error);

@@ -55,7 +55,7 @@ export default function ChartSection({
               points={points.xVal}
               color="#FF9AA2"
               strokeWidth={2}
-              animate={{ type: "timing", duration: 300 }}
+              animate={{ type: "spring", duration: 10 }}
             />
           )}
           {selectedAxes.y && (
@@ -63,7 +63,7 @@ export default function ChartSection({
               points={points.yVal}
               color="#9EDFFF"
               strokeWidth={2}
-              animate={{ type: "timing", duration: 300 }}
+              animate={{ type: "spring", duration: 10 }}
             />
           )}
           {selectedAxes.z && (
@@ -71,7 +71,7 @@ export default function ChartSection({
               points={points.zVal}
               color="#B5EAD7"
               strokeWidth={2}
-              animate={{ type: "timing", duration: 300 }}
+              animate={{ type: "spring", duration: 10 }}
             />
           )}
         </>
