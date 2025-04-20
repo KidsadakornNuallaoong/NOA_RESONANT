@@ -229,7 +229,7 @@ export default function DeviceScreen() {
     const decoded: JwtPayload = jwtDecode(token);
     const userID = decoded.userID;
     router.push({
-      pathname: "/dashboard",
+      pathname: "/(dashboard)",
       params: { id: device.id, userID, deviceName: device.name },
     });
   };
@@ -239,17 +239,6 @@ export default function DeviceScreen() {
     setDeleteId(id);
     setShowConfirm(true);
   };
-
-  // // ✅ Delete confirmed device
-  // const handleConfirmedDelete = () => {
-  //   if (deleteId) {
-  //     const updated = devices.filter((d) => d.id !== deleteId);
-  //     setDevices(updated);
-  //     saveDevices(updated);
-  //   }
-  //   setShowConfirm(false);
-  //   setDeleteId(null);
-  // };
 
   // Waiting for Delete API
   // ✅ Delete device from server (commented out for now)

@@ -1,31 +1,83 @@
-import React, { useState } from "react";
-import { Tabs, useRouter } from "expo-router";
+import React, { createContext, useEffect, useState, useCallback } from "react";
+import { Tabs, useLocalSearchParams, useRouter } from "expo-router";
 import { TouchableOpacity, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Import navigation hook
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import ExploreBottom from "@/components/ExploreBottom";
 import DropdownMenu from "@/components/DropdownMenu";
 
+export const DeviceContext = createContext<{
+  deviceID: string;
+  userID: string;
+  deviceName: string;
+}>({
+  deviceID: "",
+  userID: "",
+  deviceName: "",
+});
+
 export default function DashboardTabLayout() {
-  return <DashboardLayout />;
+  const { id, userID, deviceName } = useLocalSearchParams();
+
+  useEffect(() => {
+    console.log("Device ID:", id);
+    console.log("User ID:", userID);
+    console.log("Device Name:", deviceName);
+  }, []);
+
+  return (
+    <DeviceContext.Provider
+      value={{
+        deviceID: id as string,
+        userID: userID as string,
+        deviceName: deviceName as string,
+      }}
+    >
+      <DashboardLayout />
+    </DeviceContext.Provider>
+  );
 }
 
 const DashboardLayout = () => {
   const router = useRouter();
-  const navigation = useNavigation(); // Get navigation object
+  const navigation = useNavigation();
   const [currentCategory, setCurrentCategory] = useState("Dashboard");
+  const { id, userID, deviceName } = useLocalSearchParams();
 
-  const handleCategoryChange = (category: string) => {
-    setCurrentCategory(category);
-    if (category === "Dashboard") router.push("/dashboard");
-    if (category === "Acceleration") router.push("/acceleration");
-    if (category === "VelocityAngular") router.push("/velocityAngular");
-    if (category === "VibrationSpeed") router.push("/vibrationSpeed");
-    if (category === "VibrationAngle") router.push("/vibrationAngle");
-    if (category === "Vibration Displacement")
-      router.push("/vibrationDisplacement");
-    if (category === "Frequency") router.push("/frequency");
-  };
+  const handleCategoryChange = useCallback(
+    (category: string) => {
+      setCurrentCategory(category);
+
+      const targetPath = {
+        Dashboard: "/dashboard",
+        Acceleration: "/acceleration",
+        VelocityAngular: "/velocityAngular",
+        VibrationSpeed: "/vibrationSpeed",
+        VibrationAngle: "/vibrationAngle",
+        "Vibration Displacement": "/vibrationDisplacement",
+        Frequency: "/frequency",
+      }[category] as
+        | "/dashboard"
+        | "/acceleration"
+        | "/velocityAngular"
+        | "/vibrationSpeed"
+        | "/vibrationAngle"
+        | "/vibrationDisplacement"
+        | "/frequency";
+
+      if (targetPath) {
+        router.push({
+          pathname: targetPath,
+          params: {
+            id: id?.toString(),
+            userID: userID?.toString(),
+            deviceName: deviceName?.toString(),
+          },
+        });
+      }
+    },
+    [id, userID, deviceName]
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -50,7 +102,6 @@ const DashboardLayout = () => {
             options={{
               headerTransparent: true,
               headerTitleAlign: "center",
-
               headerLeft: () => (
                 <View style={{ marginTop: 20 }}>
                   <TouchableOpacity

@@ -1,12 +1,27 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useMemo } from "react";
-import { PaperProvider } from "react-native-paper";
+import React from "react";
+import SensorChart from "@/components/SensorChart/SensorChart";
+import { useLocalSearchParams } from "expo-router";
 
 const VibrationDisplacementScreen = () => {
+  const { id, userID, deviceName } = useLocalSearchParams();
+
+  // ป้องกันกรณีเป็น string[]
+  const deviceID = typeof id === "string" ? id : "";
+  const user = typeof userID === "string" ? userID : "";
+  const name = typeof deviceName === "string" ? deviceName : "";
+
   return (
-    <PaperProvider>
-      <View style={styles.container}></View>
-    </PaperProvider>
+    <View style={styles.container}>
+      <SensorChart
+        sensorKey="acceleration"
+        title="ACCELERATION"
+        unitLabel="(G)"
+        userID={user}
+        deviceID={deviceID}
+        deviceName={name}
+      />
+    </View>
   );
 };
 

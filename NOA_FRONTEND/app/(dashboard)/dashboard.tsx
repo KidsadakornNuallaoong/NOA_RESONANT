@@ -15,6 +15,7 @@ import {
 } from "react-native-responsive-screen";
 import { useFonts } from "expo-font";
 import DeviceIcon from "../../assets/icons/readiness_score.svg";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // === Sensor Data ===
 const rawData = [
   { category: "Acceleration", values: { X: 28.356, Y: 16.258, Z: 16.935 } },
@@ -53,11 +54,21 @@ export default function DashboardScreen() {
   const { id, userID, deviceName } = useLocalSearchParams();
   const name = typeof deviceName === "string" ? deviceName : "";
 
+  // === AsyncStorage ===
   useEffect(() => {
-    console.log("Device ID:", id);
-    console.log("User ID:", userID);
-    console.log("Device Name:", deviceName);
-  }, []);
+    const storeParams = async () => {
+      if (typeof id === "string") {
+        await AsyncStorage.setItem("id", id);
+      }
+      if (typeof userID === "string") {
+        await AsyncStorage.setItem("userID", userID);
+      }
+      if (typeof deviceName === "string") {
+        await AsyncStorage.setItem("deviceName", deviceName);
+      }
+    };
+    storeParams();
+  }, [id, userID, deviceName]);
 
   // === Fonts ===
   const [fontLoaded] = useFonts({
@@ -104,13 +115,6 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.screen}>
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <Ionicons name="chevron-back" size={26} color="#000" />
-        <Text style={styles.title}>OVERVIEW</Text>
-        <Ionicons name="ellipsis-vertical" size={20} color="#000" />
-      </View> */}
-
       {/* Info Card */}
       <View style={styles.infoCard}>
         <View>
