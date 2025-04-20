@@ -1,17 +1,17 @@
 // ✅ React & React Native imports
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  FlatList,
-  TouchableOpacity,
   Alert,
+  FlatList,
+  Image,
+  LayoutAnimation,
   Modal,
   Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
   UIManager,
-  LayoutAnimation,
+  View,
 } from "react-native";
 
 // ✅ Expo & Navigation imports
@@ -19,19 +19,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, useFocusEffect, useRouter } from "expo-router";
 
 // ✅ Custom Components & Assets
+import DeviceIcon from "@/assets/icons/readiness_score_outlined.svg";
 import CreateDevice from "@/components/CreateDevice";
-import DeviceIcon from "../../assets/icons/readiness_score_outlined.svg";
-import Calendar from "../../assets/icons/Vector.svg";
 import MostUsedSlider from "@/components/MostuseDevice";
+import Calendar from "../../assets/icons/Vector.svg";
 
 // ✅ Storage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ✅ Circular chart package
-import CircularProgress from "react-native-circular-progress-indicator";
-import { jwtDecode } from "jwt-decode";
-import { getToken } from "@/utils/secureStore";
 import { useNotificationCount } from "@/context/NotificationContext";
+import { getToken } from "@/utils/secureStore";
+import { jwtDecode } from "jwt-decode";
+import CircularProgress from "react-native-circular-progress-indicator";
 
 // ✅ Type for device
 interface Device {

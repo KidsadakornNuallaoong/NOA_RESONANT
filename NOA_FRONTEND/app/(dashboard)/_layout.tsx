@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import { Tabs, useRouter } from "expo-router";
-import { TouchableOpacity, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Import navigation hook
-import { Ionicons } from "@expo/vector-icons";
-import ExploreBottom from "@/components/ExploreBottom";
 import DropdownMenu from "@/components/DropdownMenu";
+import ExploreBottom from "@/components/ExploreBottom";
+import { WebSocketProvider } from "@/service/WebSocketContext";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native"; // Import navigation hook
+import { Tabs, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+
 
 export default function DashboardTabLayout() {
   return <DashboardLayout />;
@@ -16,7 +18,6 @@ const DashboardLayout = () => {
   const [currentCategory, setCurrentCategory] = useState("Dashboard");
 
   const handleCategoryChange = (category: string) => {
-    setCurrentCategory(category);
     if (category === "Dashboard") router.push("/dashboard");
     if (category === "Acceleration") router.push("/acceleration");
     if (category === "VelocityAngular") router.push("/velocityAngular");
@@ -28,6 +29,7 @@ const DashboardLayout = () => {
   };
 
   return (
+    <WebSocketProvider deviceID="1" userID="1">
     <View style={{ flex: 1 }}>
       <Tabs
         tabBar={() => (
@@ -82,5 +84,6 @@ const DashboardLayout = () => {
         ))}
       </Tabs>
     </View>
+    </WebSocketProvider>
   );
 };
