@@ -50,11 +50,13 @@ interface SensorItem {
 export default function DashboardScreen() {
   const router = useRouter();
   // Get ID and UserID from URL params
-  const { id, userID } = useLocalSearchParams();
+  const { id, userID, deviceName } = useLocalSearchParams();
+  const name = typeof deviceName === "string" ? deviceName : "";
 
   useEffect(() => {
     console.log("Device ID:", id);
     console.log("User ID:", userID);
+    console.log("Device Name:", deviceName);
   }, []);
 
   // === Fonts ===
@@ -125,7 +127,7 @@ export default function DashboardScreen() {
             <Text style={styles.statusText}>ONLINE</Text>
           </View>
           <Text style={styles.deviceLabel}>DEVICE</Text>
-          <Text style={styles.deviceName}>VIB01</Text>
+          <Text style={styles.deviceName}>{name}</Text>
         </View>
       </View>
 
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2d2d2d",
     padding: 15,
     height: 148,
-    marginVertical: hp("7%"),
+    marginVertical: hp("9%"),
     marginBottom: 19,
     marginHorizontal: wp("5%"),
     borderRadius: 12,

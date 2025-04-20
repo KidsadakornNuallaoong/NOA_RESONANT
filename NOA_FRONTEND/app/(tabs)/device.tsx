@@ -228,7 +228,10 @@ export default function DeviceScreen() {
 
     const decoded: JwtPayload = jwtDecode(token);
     const userID = decoded.userID;
-    router.push({ pathname: "/dashboard", params: { id: device.id, userID } });
+    router.push({
+      pathname: "/dashboard",
+      params: { id: device.id, userID, deviceName: device.name },
+    });
   };
 
   // ✅ Prepare to show delete confirmation
