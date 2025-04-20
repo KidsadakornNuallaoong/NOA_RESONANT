@@ -9,6 +9,9 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
+  Platform,
+  UIManager,
+  LayoutAnimation,
 } from "react-native";
 
 // ✅ Expo & Navigation imports
@@ -472,6 +475,20 @@ export default function DeviceScreen() {
     </TouchableOpacity>
   );
 
+  const toggleViewMode = (mode: "list" | "grid") => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setViewMode(mode);
+  };
+
+  useEffect(() => {
+    if (
+      Platform.OS === "android" &&
+      UIManager.setLayoutAnimationEnabledExperimental
+    ) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -510,7 +527,7 @@ export default function DeviceScreen() {
               styles.viewButton,
               viewMode === "list" && styles.activeButton,
             ]}
-            onPress={() => setViewMode("list")}
+            onPress={() => toggleViewMode("list")}
           >
             <Ionicons
               name="filter-outline"
@@ -523,7 +540,7 @@ export default function DeviceScreen() {
               styles.viewButton,
               viewMode === "grid" && styles.activeButton,
             ]}
-            onPress={() => setViewMode("grid")}
+            onPress={() => toggleViewMode("grid")}
           >
             <Ionicons
               name="apps-outline"

@@ -14,6 +14,7 @@ import { Link, router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
+import * as Clipboard from "expo-clipboard";
 
 interface JwtPayload {
   userID: string;
@@ -29,6 +30,9 @@ export default function SettingScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState("system");
+  const [userID, setUserID] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const [fontsLoaded] = useFonts({
     Koulen: require("../../assets/fonts/Koulen-Regular.ttf"),
   });
@@ -41,6 +45,14 @@ export default function SettingScreen() {
     );
   }
 
+  const handleCopyUserID = async () => {
+    if (userID) {
+      await Clipboard.setStringAsync(userID);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   useEffect(() => {
     const loadUserData = async () => {
       const token = await getToken();
@@ -48,6 +60,7 @@ export default function SettingScreen() {
 
       const decoded: JwtPayload = jwtDecode(token);
       const userID = decoded.userID;
+      setUserID(userID);
 
       try {
         const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/userID`, {
@@ -114,6 +127,23 @@ export default function SettingScreen() {
         />
         <Text style={styles.username}>{user?.username?.toUpperCase()}</Text>
         <Text style={styles.email}>{user?.email}</Text>
+        {userID && (
+          <View style={styles.userIdBox}>
+            <Text style={styles.userIdLabel}>User ID : </Text>
+            <View style={styles.userIdRow}>
+              <Text style={styles.userIdValue}>
+                {`${userID.slice(0, 6)}••••••${userID.slice(-4)}`}
+              </Text>
+              <TouchableOpacity onPress={handleCopyUserID}>
+                <Ionicons
+                  name={copied ? "checkmark" : "copy-outline"}
+                  size={20}
+                  color={copied ? "#40dd7f" : "#40dd7f"}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
 
       {/* Account */}
@@ -202,14 +232,41 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   username: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 25,
+    fontFamily: "Koulen",
     color: "#fff",
   },
   email: {
     fontSize: 14,
     color: "#68d391",
+    fontWeight: "bold",
     marginTop: 4,
+  },
+  userIdBox: {
+    backgroundColor: "#2d2d2d",
+    flexDirection: "row",
+    paddingVertical: 4,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginVertical: 15,
+    alignItems: "center",
+    width: "43%",
+  },
+  userIdLabel: {
+    fontSize: 14,
+    color: "#aaa",
+    fontFamily: "Koulen",
+  },
+  userIdRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  userIdValue: {
+    color: "#fff",
+    fontSize: 14,
+    fontFamily: "Koulen",
   },
   card: {
     marginTop: -20,
