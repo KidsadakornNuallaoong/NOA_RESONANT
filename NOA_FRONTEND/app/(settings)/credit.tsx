@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -24,6 +25,8 @@ const CreditCardScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      
       {/* Header */}
       <View style={styles.header}>
         <Link href={"/setting"} asChild>

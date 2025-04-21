@@ -9,11 +9,10 @@ import {
   FlatList,
   Image,
   Modal,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
 import DeviceIcon from "../../assets/icons/readiness_score_outlined.svg";
@@ -400,7 +399,6 @@ export default function BookmarkScreen() {
 
   return (
     <View style={styles.container}>
-<StatusBar barStyle="dark-content"  backgroundColor={"#f9f9f9"} />
       
       <View style={styles.header}>
         <Text style={{ fontSize: 32, fontFamily: "Koulen" }}>BOOKMARK</Text>

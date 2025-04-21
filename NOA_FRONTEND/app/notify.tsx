@@ -1,15 +1,16 @@
+import { useNotifications } from "@/context/NotificationContext";
+import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
+import React, { useEffect } from "react";
 import {
+  Image,
+  ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
-  View,
-  Image,
   TouchableOpacity,
-  ScrollView,
+  View,
 } from "react-native";
-import React, { useEffect } from "react";
-import { Link } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { useNotifications } from "@/context/NotificationContext";
 
 const iconMap = {
   warning: require("../assets/images/Warning.png"),
@@ -41,6 +42,8 @@ const Notification = () => {
   }, []);
   return (
     <View style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      
       <View style={styles.header}>
         <View style={{ position: "absolute", left: 0 }}>
           <Link href={"/(tabs)/device"} asChild>
