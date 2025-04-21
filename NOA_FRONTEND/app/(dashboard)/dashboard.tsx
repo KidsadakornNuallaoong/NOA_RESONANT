@@ -555,7 +555,7 @@ const dashboard = () => {
             style={styles.emptyImage}
             resizeMode="contain"
           />
-          <Text style={styles.emptyTitle}>No Data Value</Text>
+          <Text style={styles.emptyTitle}>No Data Available</Text>
           <Text style={styles.emptySubtitle}>
             Waiting for real-time sensor data to appear.
           </Text>

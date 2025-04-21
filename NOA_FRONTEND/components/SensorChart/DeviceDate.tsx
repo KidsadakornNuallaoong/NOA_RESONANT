@@ -25,28 +25,34 @@ const DeviceDate = ({ deviceName, userID, deviceID }: DeviceDateProps) => {
   const [timeStr, setTimeStr] = useState("");
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const updateDateTime = () => {
       const now = new Date();
-
-      const date = now.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-
+  
+      const day = now.getDate();
+      const month = now.toLocaleString("default", { month: "long" });
+      const year = now.getFullYear();
+      const date = `${day} ${month} ${year}`;
+  
       const time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
         hour12: true,
       });
-
+  
       setDateStr(date);
       setTimeStr(time);
-    }, 1000);
-
+    };
+  
+    // 🔹 เรียกทันทีรอบแรกก่อน setInterval
+    updateDateTime();
+  
+    // 🔁 แล้วค่อยเริ่ม interval
+    const interval = setInterval(updateDateTime, 1000);
+  
     return () => clearInterval(interval);
   }, []);
+  
 
   return (
     <View style={{ alignItems: "center" }}>
