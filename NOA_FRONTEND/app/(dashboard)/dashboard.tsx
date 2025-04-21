@@ -1,34 +1,27 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  LogBox,
-} from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
-import { useFonts } from "expo-font";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import {
+  LogBox,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { SvgProps } from "react-native-svg";
 
-import AcceIcon from "@assets/icons/readiness_score.svg";
-import VelAngIcon from "@assets/icons/device_hub.svg";
 import VelSpdIcon from "@assets/icons/acute.svg";
-import VibAngIcon from "@assets/icons/Group 1.svg";
 import VibDisIcon from "@assets/icons/animation.svg";
+import VelAngIcon from "@assets/icons/device_hub.svg";
 import FreqIcon from "@assets/icons/earthquake.svg";
+import VibAngIcon from "@assets/icons/Group 1.svg";
+import AcceIcon from "@assets/icons/readiness_score.svg";
 
-import EachViewIconWhite from "../../assets/icons/modern-Icon/columnlist_nofill.svg";
 import ListViewIconWhite from "@/assets/icons/modern-Icon/rowlist_fill.svg";
+import EachViewIconWhite from "../../assets/icons/modern-Icon/columnlist_nofill.svg";
 
 import ListViewIconBlack from "@/assets/icons/modern-Icon-black/filter_list.svg";
 import EachViewIconBlack from "@/assets/icons/modern-Icon-black/widget_small.svg";
@@ -513,6 +506,7 @@ const dashboard = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <DeviceBoard isOnline={true} deviceName={deviceName as string} />
       <View style={styles.dataTitleWrapper}>
         <Text style={[styles.dataTitle, styles.fontFamily]}>

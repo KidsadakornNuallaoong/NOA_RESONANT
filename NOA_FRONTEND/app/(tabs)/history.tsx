@@ -1,14 +1,13 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ScrollView,
-  ImageSourcePropType,
-} from "react-native";
-import React, { useEffect, useState } from "react";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
+import React, { useEffect, useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 
 type AlertItem = {
   type: "WARNING" | "CAUTION";
@@ -62,6 +61,7 @@ const PredictionHistory: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
+      
       <View style={styles.header}>
         <Text style={[styles.headerText, { fontFamily: "Koulen" }]}>
           PREDICTION HISTORY

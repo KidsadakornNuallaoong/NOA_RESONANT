@@ -1,20 +1,20 @@
+import { getToken } from "@/utils/secureStore";
+import { Ionicons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import { Link } from "expo-router";
+import { jwtDecode } from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
   ActivityIndicator,
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
   TextInput,
-  Alert,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { getToken } from "@/utils/secureStore";
-import { jwtDecode } from "jwt-decode";
-import { Link } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
 
 interface JwtPayload {
   userID: string;
@@ -155,6 +155,8 @@ const AccountScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+    <StatusBar barStyle="light-content" translucent={false} />
+      
       {/* Header */}
       <View style={styles.header}>
         <Link href={"/setting"} asChild>

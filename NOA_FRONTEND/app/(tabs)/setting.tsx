@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-} from "react-native";
 import { clearToken, getToken } from "@/utils/secureStore";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
+import { useFonts } from "expo-font";
 import { Link, router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useFonts } from "expo-font";
-import * as Clipboard from "expo-clipboard";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface JwtPayload {
   userID: string;
@@ -119,6 +120,7 @@ export default function SettingScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#eeeeee" }}>
+    <StatusBar barStyle="light-content" translucent={false} backgroundColor={"#1c1c1c"}/>
       {/* Header */}
       <View style={styles.headerContainer}>
         <Image

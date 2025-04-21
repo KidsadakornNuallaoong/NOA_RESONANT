@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import wsDashboard from "@/service/wsDashboard";
+import { useFocusEffect } from "expo-router";
+import React, { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import AxisSelector from "./AxisSelector";
 import ChartSection from "./ChartSection";
-import SensorDataTable from "./SensorDataTable";
 import DeviceDate from "./DeviceDate";
-import wsDashboard from "@/service/wsDashboard";
+import SensorDataTable from "./SensorDataTable";
 
 type Axis = "x" | "y" | "z";
 type ChartType = "line";
@@ -45,7 +46,8 @@ const SensorChart = ({
     { x: number; y: number; z: number }[]
   >([]);
 
-  useEffect(() => {
+  useFocusEffect(
+    React.useCallback(() => {
     const socket = wsDashboard(userID, deviceID);
 
     const handleMessage = (event: MessageEvent) => {
@@ -114,7 +116,8 @@ const SensorChart = ({
       socket.removeEventListener("message", handleMessage);
       socket.close();
     };
-  }, [sensorKey]);
+  } ,[])
+  );
 
   return (
     <View style={styles.container}>

@@ -1,17 +1,18 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   Image,
-  TouchableOpacity,
   SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 const LocationScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
+      
       {/* Header */}
       <View style={styles.header}>
         <View style={{ width: 24 }} /> {/* Spacer to balance layout */}
@@ -24,7 +25,7 @@ const LocationScreen = () => {
       {/* Factory Image */}
       <View style={styles.imageContainer}>
         <Image
-          source={require("../../assets/images/Location.png")}
+          source={require("../../assets/images/NOA.png")}
           style={styles.factoryImage}
           resizeMode="contain"
         />

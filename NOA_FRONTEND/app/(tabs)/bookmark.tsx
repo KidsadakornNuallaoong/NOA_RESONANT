@@ -1,22 +1,23 @@
-import React, { useState, useCallback, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  Modal,
-} from "react-native";
+import { getToken } from "@/utils/secureStore";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import { jwtDecode } from "jwt-decode";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  FlatList,
+  Image,
+  Modal,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import CircularProgress from "react-native-circular-progress-indicator";
 import DeviceIcon from "../../assets/icons/readiness_score_outlined.svg";
 import Calendar from "../../assets/icons/Vector.svg";
-import CircularProgress from "react-native-circular-progress-indicator";
-import { getToken } from "@/utils/secureStore";
-import { jwtDecode } from "jwt-decode";
 
 interface Device {
   id: string;
@@ -399,6 +400,8 @@ export default function BookmarkScreen() {
 
   return (
     <View style={styles.container}>
+<StatusBar barStyle="dark-content"  backgroundColor={"#f9f9f9"} />
+      
       <View style={styles.header}>
         <Text style={{ fontSize: 32, fontFamily: "Koulen" }}>BOOKMARK</Text>
       </View>
