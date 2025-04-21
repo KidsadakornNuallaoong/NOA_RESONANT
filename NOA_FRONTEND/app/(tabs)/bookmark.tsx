@@ -12,11 +12,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
 import DeviceIcon from "../../assets/icons/readiness_score_outlined.svg";
 import Calendar from "../../assets/icons/Vector.svg";
+import { widthPercentageToDP } from "react-native-responsive-screen";
+import Constants from "expo-constants";
 
 interface Device {
   id: string;
@@ -63,7 +65,7 @@ export default function BookmarkScreen() {
     const decoded: JwtPayload = jwtDecode(token);
     const userID = decoded.userID;
 
-    const API = `${process.env.EXPO_PUBLIC_API_URL}/device/getDevices`;
+    const API = `${Constants.expoConfig?.extra?.apiUrl}/device/getDevices`;
 
     const response = await fetch(API, {
       method: "POST",
@@ -399,7 +401,6 @@ export default function BookmarkScreen() {
 
   return (
     <View style={styles.container}>
-      
       <View style={styles.header}>
         <Text style={{ fontSize: 32, fontFamily: "Koulen" }}>BOOKMARK</Text>
       </View>
@@ -643,12 +644,12 @@ const styles = StyleSheet.create({
   },
   // Grid View
   gridCard: {
-    flex: 1,
     backgroundColor: "#2d2d2d",
     borderRadius: 14,
-    padding: 12,
-    marginBottom: 12,
-    minWidth: "48%",
+    padding: 10,
+    marginBottom: 15,
+    width: widthPercentageToDP("38%"), // เปลี่ยนจาก minWidth เป็น wp%
+    marginHorizontal: widthPercentageToDP("2%"), // เพื่อให้ spacing ซ้ายขวาสม่ำเสมอ
   },
   topRow: {
     flexDirection: "row",
@@ -658,8 +659,8 @@ const styles = StyleSheet.create({
   },
   deviceId: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 13,
+    fontFamily: "Koulen",
   },
   rowCenter: {
     flexDirection: "row",

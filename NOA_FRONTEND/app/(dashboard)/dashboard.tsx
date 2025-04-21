@@ -27,6 +27,7 @@ import EachViewIconWhite from "../../assets/icons/modern-Icon/columnlist_nofill.
 import ListViewIconBlack from "@/assets/icons/modern-Icon-black/filter_list.svg";
 import EachViewIconBlack from "@/assets/icons/modern-Icon-black/widget_small.svg";
 import DeviceBoard from "@/components/DeviceBoard";
+import Constants from "expo-constants";
 
 // === Sensor Data ===
 declare global {
@@ -435,10 +436,9 @@ const dashboard = () => {
 
     fetchData();
   }, [paramId, paramUserID, paramDeviceName]);
+  const BASE_WS_URL = Constants.expoConfig?.extra?.websocketUrl;
 
-  const websocketURL =
-    process.env.EXPO_PUBLIC_WEBSOCKET_URL +
-    `/ws/boadcast?userID=${userID}&deviceID=${id}`;
+  const websocketURL = `${BASE_WS_URL}/ws/boadcast?userID=${userID}&deviceID=${id}`;
 
   const [data, setData] = React.useState<DataProps | null>(null);
 
@@ -450,7 +450,6 @@ const dashboard = () => {
         if (globalThis.websocket) {
           globalThis.websocket.close();
           console.log("WebSocket closed before reconnecting");
-
         }
 
         globalThis.websocket = new WebSocket(websocketURL);
@@ -504,7 +503,12 @@ const dashboard = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <DeviceBoard isOnline={isOnline} deviceName={deviceName as string} />
+      {deviceName ? (
+        <DeviceBoard isOnline={isOnline} />
+      ) : (
+        <Text>Loading device...</Text>
+      )}
+
       <View style={styles.dataTitleWrapper}>
         <Text style={[styles.dataTitle, styles.fontFamily]}>
           Vibration sensor data

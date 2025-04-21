@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import { DeviceContext } from "@/app/(dashboard)/_layout";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
@@ -16,10 +17,11 @@ interface DateTimeProps {
 
 interface DeviceBoardProps {
   isOnline?: boolean;
-  deviceName: string;
 }
 
-const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
+const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline }) => {
+  const { deviceName } = useContext(DeviceContext);
+
   // * current date and time
   const [date, setDate] = React.useState<DateTimeProps>({
     day: new Date().getDate(),

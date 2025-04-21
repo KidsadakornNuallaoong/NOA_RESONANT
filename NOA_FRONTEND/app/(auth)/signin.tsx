@@ -21,6 +21,7 @@ import {
 } from "@/utils/secureStore";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { jwtDecode } from "jwt-decode";
+import Constants from "expo-constants";
 
 interface DecodedToken {
   userID: string;
@@ -54,7 +55,7 @@ const SignInScreen = () => {
 
     setError("");
     setIsLoading(true);
-    const API = `${process.env.EXPO_PUBLIC_API_URL}/login`;
+    const API = `${Constants.expoConfig?.extra?.apiUrl}/login`;
 
     try {
       const response = await fetch(API, {
@@ -209,11 +210,6 @@ const SignInScreen = () => {
               </TouchableOpacity>
             </Link>
           </View>
-          {/* <Link href="/(tabs)/device" asChild>
-            <TouchableOpacity>
-              <Text style={styles.loginSpan}>Go through Home</Text>
-            </TouchableOpacity>
-          </Link> */}
         </Animated.View>
       </View>
     </>

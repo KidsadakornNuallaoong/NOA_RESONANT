@@ -1,6 +1,4 @@
-import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
-import { Image, TouchableOpacity, ViewToken } from "react-native";
+import React, { useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +6,11 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
+  TouchableOpacity,
+  Image,
+  ViewToken,
 } from "react-native";
+import { useRouter } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -21,16 +23,19 @@ const MostUsedSlider: React.FC<MostUsedProps> = ({ devices }) => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const router = useRouter();
 
-  const viewableItemsChanged = useRef(
+  // ✅ ติดตามการเปลี่ยน index
+  const onViewRef = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      const firstVisibleIndex = viewableItems[0]?.index;
-      if (firstVisibleIndex !== undefined && firstVisibleIndex !== null) {
-        setCurrentIndex(firstVisibleIndex);
+      const index = viewableItems[0]?.index;
+      if (index !== undefined && index !== null) {
+        setCurrentIndex(index);
       }
     }
-  ).current;
+  );
 
-  const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const viewConfigRef = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+  });
 
   return (
     <View>
@@ -46,12 +51,13 @@ const MostUsedSlider: React.FC<MostUsedProps> = ({ devices }) => {
         )}
         scrollEventThrottle={16}
         bounces={false}
-        onViewableItemsChanged={viewableItemsChanged}
-        viewabilityConfig={viewConfig}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
-              router.push({ pathname: "/dashboard", params: { id: item.id } })
+              router.push({
+                pathname: "/dashboard",
+                params: { id: item.id },
+              })
             }
           >
             <View style={styles.card}>
@@ -64,14 +70,24 @@ const MostUsedSlider: React.FC<MostUsedProps> = ({ devices }) => {
                   <Text style={styles.deviceTitle}>
                     Device Address: {item.name}
                   </Text>
+
                   <Text style={styles.graphLabel}>Graph: Linear plot</Text>
                 </View>
               </View>
             </View>
           </TouchableOpacity>
         )}
+        viewabilityConfigCallbackPairs={
+          useRef([
+            {
+              viewabilityConfig: viewConfigRef.current,
+              onViewableItemsChanged: onViewRef.current,
+            },
+          ]).current
+        }
       />
-      {/* Dot Indicator */}
+
+      {/* ✅ Indicator Dots */}
       <View style={styles.dotContainer}>
         {devices.map((_, index) => (
           <View
@@ -87,8 +103,19 @@ const MostUsedSlider: React.FC<MostUsedProps> = ({ devices }) => {
 export default MostUsedSlider;
 
 const styles = StyleSheet.create({
+  deviceHeaderText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 6,
+    fontFamily: "Koulen",
+    color: "#333",
+    textAlign: "center",
+  },
+  deviceNameText: {
+    color: "#3fde7f",
+  },
   card: {
-    marginTop: 20,
+    marginTop: 10,
     backgroundColor: "#2d2d2d",
     borderRadius: 12,
     paddingVertical: 16,

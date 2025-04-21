@@ -61,7 +61,7 @@ const OtpScreen = () => {
     setLoading(true);
     try {
       await verifyOtp(usernameString, emailString, passwordString, otpCode);
-      router.replace("/"); // ✅ ไปหน้า Login/Home
+      router.replace("/");
     } catch (err: any) {
       Alert.alert("Error", err.message || "Invalid OTP.");
     } finally {

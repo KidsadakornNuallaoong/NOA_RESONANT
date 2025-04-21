@@ -10,12 +10,12 @@ export default {
     slug: "NOA_FRONTEND",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/NOA_LOGO.png",
     scheme: "myapp",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/splash-icon.png",
+      image: "./assets/images/NOA_LOGO.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
@@ -24,7 +24,7 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/images/adaptive-icon.png",
+        foregroundImage: "./assets/images/NOA_LOGO.png",
         backgroundColor: "#ffffff",
       },
     },
@@ -39,6 +39,9 @@ export default {
     },
     extra: {
       API: process.env.API_URL,
+      apiUrl: process.env.EXPO_PUBLIC_API_URL,
+      websocketUrl: process.env.EXPO_PUBLIC_WEBSOCKET_URL,
+      notiSocketUrl: process.env.EXPO_PUBLIC_NOTI_WEBSOCKET_URL,
     },
     fonts: {
       "Inter_18pt-Medium": "./assets/fonts/Inter_18pt-Medium.ttf",

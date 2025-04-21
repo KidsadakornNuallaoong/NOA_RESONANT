@@ -1,6 +1,6 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import { CheckBox } from "@rneui/themed";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import Checkbox from "expo-checkbox";
 
 type Axis = "x" | "y" | "z";
 
@@ -25,20 +25,18 @@ const AxisSelector = ({ selectedAxes, setSelectedAxes }: Props) => {
   return (
     <View style={styles.container}>
       {(["x", "y", "z"] as Axis[]).map((axis) => (
-        <CheckBox
+        <TouchableOpacity
           key={axis}
-          title={axis.toUpperCase()}
-          checked={selectedAxes[axis]}
+          style={styles.checkboxWrapper}
           onPress={() => toggleAxis(axis)}
-          size={30}
-          checkedColor={axisColors[axis]}
-          containerStyle={styles.checkbox}
-          textStyle={{
-            fontWeight: "bold",
-            fontSize: 20,
-            color: "#000",
-          }}
-        />
+        >
+          <Checkbox
+            value={selectedAxes[axis]}
+            onValueChange={() => toggleAxis(axis)}
+            color={selectedAxes[axis] ? axisColors[axis] : undefined}
+          />
+          <Text style={styles.label}>{axis.toUpperCase()}</Text>
+        </TouchableOpacity>
       ))}
     </View>
   );
@@ -52,11 +50,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 20,
   },
-  checkbox: {
-    backgroundColor: "#fff",
-    borderWidth: 0,
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-    marginVertical: 0,
+  checkboxWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+  label: {
+    marginLeft: 8,
+    fontFamily: "Koulen",
+    fontSize: 20,
+    paddingHorizontal: 10,
+    color: "#000",
   },
 });

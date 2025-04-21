@@ -126,7 +126,7 @@ const SensorChart = ({
       <View style={styles.headerRow}>
         <Text style={styles.title}>{title.toUpperCase()}: LINE PLOT</Text>
       </View>
-      <View style={{ height: 260, width: "100%" }}>
+      <View style={{ height: 230, width: "100%" }}>
         {xData.length === 0 && yData.length === 0 && zData.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Image

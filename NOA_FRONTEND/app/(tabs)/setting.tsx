@@ -1,6 +1,7 @@
 import { clearToken, getToken } from "@/utils/secureStore";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import Constants from "expo-constants";
 import { useFonts } from "expo-font";
 import { Link, router } from "expo-router";
 import { jwtDecode } from "jwt-decode";
@@ -62,9 +63,10 @@ export default function SettingScreen() {
       const decoded: JwtPayload = jwtDecode(token);
       const userID = decoded.userID;
       setUserID(userID);
+      const API = Constants.expoConfig?.extra?.apiUrl;
 
       try {
-        const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/userID`, {
+        const res = await fetch(`${API}/userID`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userID }),
@@ -120,7 +122,11 @@ export default function SettingScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#eeeeee" }}>
-    <StatusBar barStyle="light-content" translucent={false} backgroundColor={"#1c1c1c"}/>
+      <StatusBar
+        barStyle="light-content"
+        translucent={false}
+        backgroundColor={"#1c1c1c"}
+      />
       {/* Header */}
       <View style={styles.headerContainer}>
         <Image

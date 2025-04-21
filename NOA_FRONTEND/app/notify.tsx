@@ -1,4 +1,7 @@
-import { useNotifications } from "@/context/NotificationContext";
+import {
+  useNotificationCount,
+  useNotifications,
+} from "@/context/NotificationContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import React, { useEffect } from "react";
@@ -42,8 +45,8 @@ const Notification = () => {
   }, []);
   return (
     <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
       <View style={styles.header}>
         <View style={{ position: "absolute", left: 0 }}>
           <Link href={"/(tabs)/device"} asChild>
@@ -87,7 +90,10 @@ const Notification = () => {
           />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
           {notifications.map((item, index) => (
             <View key={index} style={styles.notificationBox}>
               <View style={styles.row}>

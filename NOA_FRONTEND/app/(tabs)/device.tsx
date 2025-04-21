@@ -14,7 +14,7 @@ import {
   UIManager,
   View,
 } from "react-native";
-
+import Constants from "expo-constants";
 // ✅ Expo & Navigation imports
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useFocusEffect, useRouter } from "expo-router";
@@ -29,10 +29,11 @@ import Calendar from "../../assets/icons/Vector.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ✅ Circular chart package
-import { useNotificationCount } from "@/context/NotificationContext";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
 import CircularProgress from "react-native-circular-progress-indicator";
+import { widthPercentageToDP } from "react-native-responsive-screen";
+import { useNotificationCount } from "@/context/NotificationContext";
 
 // ✅ Type for device
 interface Device {
@@ -80,7 +81,7 @@ export default function DeviceScreen() {
     const decoded: JwtPayload = jwtDecode(token);
     const userID = decoded.userID;
 
-    const API = `${process.env.EXPO_PUBLIC_API_URL}/device/getDevices`;
+    const API = `${Constants.expoConfig?.extra?.apiUrl}/device/getDevices`;
 
     const response = await fetch(API, {
       method: "POST",
@@ -479,8 +480,12 @@ export default function DeviceScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" translucent={false} backgroundColor={"#f9f9f9"} />
-      
+      <StatusBar
+        barStyle="dark-content"
+        translucent={false}
+        backgroundColor={"#f9f9f9"}
+      />
+
       <View style={styles.header}>
         <Image
           source={require("../../assets/images/NOA.png")}
@@ -782,13 +787,14 @@ const styles = StyleSheet.create({
 
   // Grid View
   gridCard: {
-    flex: 1,
     backgroundColor: "#2d2d2d",
     borderRadius: 14,
-    padding: 12,
-    marginBottom: 12,
-    minWidth: "48%",
+    padding: 10,
+    marginBottom: 15,
+    width: widthPercentageToDP("38%"), // เปลี่ยนจาก minWidth เป็น wp%
+    marginHorizontal: widthPercentageToDP("2%"), // เพื่อให้ spacing ซ้ายขวาสม่ำเสมอ
   },
+
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -797,8 +803,8 @@ const styles = StyleSheet.create({
   },
   deviceId: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 13,
+    fontFamily: "Koulen",
   },
   rowCenter: {
     flexDirection: "row",

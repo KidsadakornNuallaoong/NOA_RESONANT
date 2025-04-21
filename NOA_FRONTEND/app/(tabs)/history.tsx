@@ -1,13 +1,8 @@
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
 import React, { useEffect, useState } from "react";
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import Constants from "expo-constants";
 
 type AlertItem = {
   type: "WARNING" | "CAUTION";
@@ -37,11 +32,10 @@ const PredictionHistory: React.FC = () => {
         const token = await getToken();
         const decoded: { userID: string } = jwtDecode(token!);
         const userID = decoded.userID;
+        const API = Constants.expoConfig?.extra?.apiUrl;
 
         // waiting for history API
-        const res = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/prediction-history?userID=${userID}`
-        );
+        const res = await fetch(`${API}/prediction-history?userID=${userID}`);
         const data = await res.json();
 
         // เช็คตรงนี้
@@ -61,7 +55,6 @@ const PredictionHistory: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
-      
       <View style={styles.header}>
         <Text style={[styles.headerText, { fontFamily: "Koulen" }]}>
           PREDICTION HISTORY

@@ -6,7 +6,6 @@ import {
 } from "react-native-responsive-screen";
 
 import Device from "../../assets/icons/cable_colorable.svg";
-import { useLocalSearchParams } from "expo-router";
 
 interface DeviceDateProps {
   deviceName: string;
@@ -27,35 +26,34 @@ const DeviceDate = ({ deviceName, userID, deviceID }: DeviceDateProps) => {
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-  
+
       const day = now.getDate();
       const month = now.toLocaleString("default", { month: "long" });
       const year = now.getFullYear();
       const date = `${day} ${month} ${year}`;
-  
+
       const time = now.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
         hour12: true,
       });
-  
+
       setDateStr(date);
       setTimeStr(time);
     };
-  
+
     // 🔹 เรียกทันทีรอบแรกก่อน setInterval
     updateDateTime();
-  
+
     // 🔁 แล้วค่อยเริ่ม interval
     const interval = setInterval(updateDateTime, 1000);
-  
+
     return () => clearInterval(interval);
   }, []);
-  
 
   return (
-    <View style={{ alignItems: "center" }}>
+    <View style={{ alignItems: "center", marginTop: hp("2%") }}>
       <View style={styles.infoCard}>
         <View>
           {/* <Text style={styles.infoLabel}>CURRENT DATE & TIME</Text> */}

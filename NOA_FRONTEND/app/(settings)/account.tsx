@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 interface JwtPayload {
@@ -155,8 +155,8 @@ const AccountScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-    <StatusBar barStyle="light-content" translucent={false} />
-      
+      <StatusBar barStyle="light-content" translucent={false} />
+
       {/* Header */}
       <View style={styles.header}>
         <Link href={"/setting"} asChild>
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   backButton: {
     position: "absolute",
     left: 20,
-    top: 60,
+    top: 40,
   },
   avatar: {
     width: 80,

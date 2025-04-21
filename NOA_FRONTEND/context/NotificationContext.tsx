@@ -6,6 +6,7 @@ import {
 } from "@/service/wsNotificationService";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
+import Constants from "expo-constants";
 
 export interface NotificationItem {
   type: "warning" | "caution" | "success" | "expire";
@@ -48,20 +49,22 @@ export const NotificationProvider = ({
   children: React.ReactNode;
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const wsUri = process.env.EXPO_PUBLIC_WS_URI;
-
   useEffect(() => {
+    const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;
 
       const { userID } = jwtDecode<{ userID: string }>(token);
-      const wsUrl = `${wsUri}/ws/notification/${userID}`;
+      // const wsUrl = ${wsUri}/ws/notification/${userID};
+      const wsUrl = `${wsUri}/ws`;
 
       initNotificationWS(wsUrl, (parsed) => {
+        console.log("📥 Received from WebSocket:", parsed); // ⬅️ ต้องเห็น
         const now = new Date();
         const newNoti: NotificationItem = {
           ...parsed,
+
           time: now.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
