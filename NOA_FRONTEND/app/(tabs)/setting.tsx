@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginVertical: 15,
     alignItems: "center",
-    width: "43%",
+    width: "50%",
   },
   userIdLabel: {
     fontSize: 14,

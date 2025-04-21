@@ -62,7 +62,7 @@ export default function TabbarBottom({ state, navigation }: BottomTabBarProps) {
                   color: isFocused ? "#3FDE7F" : "#fff",
                   fontFamily: "LilitaOne",
                   fontSize: 12,
-                  marginTop: 3,
+                  marginTop: 8,
                 }}
               >
                 {item.label}

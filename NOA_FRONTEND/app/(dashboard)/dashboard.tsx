@@ -16,20 +16,16 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { useFonts } from "expo-font";
-import DeviceIcon from "../../assets/icons/readiness_score.svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import wsDashboard from "@/service/wsDashboard";
 
 import { SvgProps } from "react-native-svg";
 
-import {
-  default as AccIcon,
-  default as FrequencyIcon,
-  default as VelocityAngularIcon,
-  default as VibAngleIcon,
-  default as VibDisplacementIcon,
-  default as VibSpeedIcon,
-} from "@/assets/icons/acute.svg";
+import AcceIcon from "@assets/icons/readiness_score.svg";
+import VelAngIcon from "@assets/icons/device_hub.svg";
+import VelSpdIcon from "@assets/icons/acute.svg";
+import VibAngIcon from "@assets/icons/Group 1.svg";
+import VibDisIcon from "@assets/icons/animation.svg";
+import FreqIcon from "@assets/icons/earthquake.svg";
 
 import EachViewIconWhite from "../../assets/icons/modern-Icon/columnlist_nofill.svg";
 import ListViewIconWhite from "@/assets/icons/modern-Icon/rowlist_fill.svg";
@@ -106,109 +102,109 @@ const EachView: React.FC<{ data: DataProps }> = ({ data }) => {
       >
         <ViewData>
           <DataItem
-            Icon={AccIcon}
+            Icon={AcceIcon}
             title="X.ACC"
             data={data?.data.X.Acceleration as number}
           />
           <DataItem
-            Icon={AccIcon}
+            Icon={AcceIcon}
             title="Y.ACC"
             data={data?.data.Y.Acceleration as number}
           />
           <DataItem
-            Icon={AccIcon}
+            Icon={AcceIcon}
             title="Z.ACC"
             data={data?.data.Z.Acceleration as number}
           />
         </ViewData>
         <ViewData>
           <DataItem
-            Icon={VelocityAngularIcon}
+            Icon={VelAngIcon}
             title="X.Velocity"
             data={data?.data.X.VelocityAngular as number}
           />
           <DataItem
-            Icon={VelocityAngularIcon}
+            Icon={VelAngIcon}
             title="Y.Velocity"
             data={data?.data.Y.VelocityAngular as number}
           />
           <DataItem
-            Icon={VelocityAngularIcon}
+            Icon={VelAngIcon}
             title="Z.Velocity"
             data={data?.data.Z.VelocityAngular as number}
           />
         </ViewData>
         <ViewData>
           <DataItem
-            Icon={VibSpeedIcon}
+            Icon={VelSpdIcon}
             title="X.Vibration"
             data={data?.data.X.VibrationSpeed as number}
           />
           <DataItem
-            Icon={VibSpeedIcon}
+            Icon={VelSpdIcon}
             title="Y.Vibration"
             data={data?.data.Y.VibrationSpeed as number}
           />
           <DataItem
-            Icon={VibSpeedIcon}
+            Icon={VelSpdIcon}
             title="Z.Vibration"
             data={data?.data.Z.VibrationSpeed as number}
           />
         </ViewData>
         <ViewData>
           <DataItem
-            Icon={VibAngleIcon}
+            Icon={VibAngIcon}
             title="X.Vibration"
             data={data?.data.X.VibrationAngle as number}
           />
           <DataItem
-            Icon={VibAngleIcon}
+            Icon={VibAngIcon}
             title="Y.Vibration"
             data={data?.data.Y.VibrationAngle as number}
           />
           <DataItem
-            Icon={VibAngleIcon}
+            Icon={VibAngIcon}
             title="Z.Vibration"
             data={data?.data.Z.VibrationAngle as number}
           />
         </ViewData>
         <ViewData>
           <DataItem
-            Icon={VibDisplacementIcon}
+            Icon={VibDisIcon}
             title="X.Vibration"
             data={data?.data.X.VibrationDisplacement as number}
           />
           <DataItem
-            Icon={VibDisplacementIcon}
+            Icon={VibDisIcon}
             title="Y.Vibration"
             data={data?.data.Y.VibrationDisplacement as number}
           />
           <DataItem
-            Icon={VibDisplacementIcon}
+            Icon={VibDisIcon}
             title="Z.Vibration"
             data={data?.data.Z.VibrationDisplacement as number}
           />
         </ViewData>
         <ViewData>
           <DataItem
-            Icon={FrequencyIcon}
+            Icon={FreqIcon}
             title="X.Frequency"
             data={data?.data.X.Frequency as number}
           />
           <DataItem
-            Icon={FrequencyIcon}
+            Icon={FreqIcon}
             title="Y.Frequency"
             data={data?.data.Y.Frequency as number}
           />
           <DataItem
-            Icon={FrequencyIcon}
+            Icon={FreqIcon}
             title="Z.Frequency"
             data={data?.data.Z.Frequency as number}
           />
         </ViewData>
         <ViewData>
           <DataItem
-            Icon={FrequencyIcon}
+            Icon={FreqIcon}
             title="Temperature"
             data={data?.data.Temperature as number}
           />

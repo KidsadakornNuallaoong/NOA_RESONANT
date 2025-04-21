@@ -326,11 +326,6 @@ export default function DeviceScreen() {
               style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
             >
               <Ionicons
-                name="expand"
-                size={20}
-                color={isEven ? "#fff" : "#000"}
-              />
-              <Ionicons
                 name={item.bookmarked ? "bookmark" : "bookmark-outline"}
                 size={20}
                 color={isEven ? "#40dd7f" : "#40dd7f"}
@@ -559,6 +554,7 @@ export default function DeviceScreen() {
           {/* แสดง list view ตามปกติ */}
           {viewMode === "list" && (
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={devices}
               keyExtractor={(item) => item.id}
               renderItem={renderDevice}
@@ -571,6 +567,7 @@ export default function DeviceScreen() {
           {/* แสดง grid view แบบมีกราฟเมื่อ Modal ไม่เปิด */}
           {viewMode === "grid" && !showConfirm && (
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}

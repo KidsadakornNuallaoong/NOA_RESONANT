@@ -178,23 +178,23 @@ export default function BookmarkScreen() {
     try {
       const token = await getToken();
       if (!token) return;
-  
+
       const decoded: JwtPayload = jwtDecode(token);
       const userID = decoded.userID;
-  
+
       const updatedDevices = devices.map((device) => {
         if (device.id === id) {
           return { ...device, bookmarked: !device.bookmarked };
         }
         return device;
       });
-  
+
       setDevices(updatedDevices);
       await AsyncStorage.setItem("DEVICES", JSON.stringify(updatedDevices));
-  
+
       const toggledDevice = updatedDevices.find((d) => d.id === id);
       const API = `${process.env.EXPO_PUBLIC_API_URL}/device/changeBookmark`;
-  
+
       // ✅ ส่งข้อมูลไป backend เพื่อบันทึก Bookmark ใหม่
       await fetch(API, {
         method: "PUT",
@@ -205,7 +205,6 @@ export default function BookmarkScreen() {
           bookmark: toggledDevice?.bookmarked ?? false,
         }),
       });
-  
     } catch (error) {
       console.error("Failed to update bookmark:", error);
     }
@@ -257,11 +256,6 @@ export default function BookmarkScreen() {
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
             >
-              <Ionicons
-                name="expand"
-                size={20}
-                color={isEven ? "#fff" : "#000"}
-              />
               <Ionicons
                 name={item.bookmarked ? "bookmark" : "bookmark-outline"}
                 size={20}
@@ -459,6 +453,7 @@ export default function BookmarkScreen() {
           {/* แสดง list view ตามปกติ */}
           {viewMode === "list" && (
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={devices}
               keyExtractor={(item) => item.id}
               renderItem={renderDevice}
@@ -472,6 +467,7 @@ export default function BookmarkScreen() {
           {viewMode === "grid" && !showConfirm && (
             <FlatList
               data={devices}
+              showsVerticalScrollIndicator={false}
               keyExtractor={(item) => item.id}
               numColumns={2}
               renderItem={renderGridItem}
@@ -485,6 +481,7 @@ export default function BookmarkScreen() {
           {/* แสดง grid view แบบไม่มีกราฟเมื่อ Modal เปิด */}
           {viewMode === "grid" && showConfirm && (
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={devices}
               keyExtractor={(item) => item.id}
               numColumns={2}

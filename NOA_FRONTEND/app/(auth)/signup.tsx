@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   headerBackground: {
     backgroundColor: "#2d2d2d",
     width: "100%",
-    height: 300,
+    height: 270,
     marginBottom: 50,
     alignItems: "center",
     justifyContent: "center",
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    marginTop: 78,
+    marginTop: 50,
   },
   btnText: {
     color: "#fff",

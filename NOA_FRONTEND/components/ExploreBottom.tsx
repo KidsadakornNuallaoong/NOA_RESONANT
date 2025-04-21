@@ -78,7 +78,7 @@ const ExploreBottom = ({ onCategoryChanged }: Props) => {
                     color: isActive ? "#3FDE7F" : "#FFFFFF",
                     fontFamily: "LilitaOne",
                     fontSize: 12,
-                    marginTop: 3,
+                    marginTop: 8,
                   }}
                 >
                   {item.label}

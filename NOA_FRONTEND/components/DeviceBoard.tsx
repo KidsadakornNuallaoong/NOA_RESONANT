@@ -136,12 +136,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   date: {
-    fontSize: 28,
+    fontSize: 24,
     color: "#fff",
     fontWeight: "bold",
   },
   time: {
-    fontSize: 25,
+    fontSize: 23,
     color: "#fff",
     opacity: 0.8,
 
@@ -154,13 +154,13 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   deviceTitle: {
-    fontSize: 25,
+    fontSize: 18,
     color: "#fff",
     fontWeight: "bold",
     marginBottom: 10,
   },
   deviceName: {
-    fontSize: 22,
+    fontSize: 20,
     color: "#3FDE7F",
     fontWeight: "bold",
     overflow: "hidden",

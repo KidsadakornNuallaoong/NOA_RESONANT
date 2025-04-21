@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   ImageSourcePropType,
+  ScrollView,
 } from "react-native";
 
 type Plan = {
@@ -25,7 +26,11 @@ const SubscriptionScreen: React.FC = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
+      showsVerticalScrollIndicator={false}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -59,25 +64,29 @@ const SubscriptionScreen: React.FC = () => {
       </Text>
 
       <View style={styles.planContainer}>
-        {plans.filter((plan): plan is Exclude<Plan, null> => plan !== null).map((plan, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.planButton,
-              selectedPlan && selectedPlan.label === plan.label && styles.selectedPlanButton,
-            ]}
-            onPress={() => setSelectedPlan(plan)}
-          >
-            <Text style={styles.planTextNum}>{plan.label}</Text>
-            <Text style={styles.planText}>{plan.price}/mt</Text>
-          </TouchableOpacity>
-        ))}
+        {plans
+          .filter((plan): plan is Exclude<Plan, null> => plan !== null)
+          .map((plan, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.planButton,
+                selectedPlan &&
+                  selectedPlan.label === plan.label &&
+                  styles.selectedPlanButton,
+              ]}
+              onPress={() => setSelectedPlan(plan)}
+            >
+              <Text style={styles.planTextNum}>{plan.label}</Text>
+              <Text style={styles.planText}>{plan.price}/mt</Text>
+            </TouchableOpacity>
+          ))}
       </View>
 
       <TouchableOpacity style={styles.getButton}>
         <Text style={styles.getButtonText}>
-          {selectedPlan 
-            ? `Get ${selectedPlan.label} / ${selectedPlan.price}` 
+          {selectedPlan
+            ? `Get ${selectedPlan.label} / ${selectedPlan.price}`
             : "Please select your plan."}
         </Text>
       </TouchableOpacity>
@@ -108,7 +117,7 @@ const SubscriptionScreen: React.FC = () => {
           ))}
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -117,11 +126,10 @@ export default SubscriptionScreen;
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    alignItems: "center",
   },
   header: {
     fontSize: 32,
-    fontFamily: "Koulen"
+    fontFamily: "Koulen",
   },
   subtext: {
     color: "#3fde7f",

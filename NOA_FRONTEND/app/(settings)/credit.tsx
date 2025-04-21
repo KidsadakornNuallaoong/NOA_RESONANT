@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   cardSlider: {
     marginTop: -80,
     marginLeft: 20,
-    width: screenWidth - 30,
+    width: screenWidth - 35,
     height: 220,
   },
   cardImage: {

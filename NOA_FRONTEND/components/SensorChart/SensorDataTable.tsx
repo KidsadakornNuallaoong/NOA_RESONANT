@@ -40,6 +40,7 @@ const SensorDataTable = ({ title, unitLabel, data }: Props) => {
         </View>
       </View>
       <FlatList
+        showsVerticalScrollIndicator={false}
         data={data.slice(0, 10)}
         keyExtractor={(_, i) => i.toString()}
         renderItem={renderRow}
