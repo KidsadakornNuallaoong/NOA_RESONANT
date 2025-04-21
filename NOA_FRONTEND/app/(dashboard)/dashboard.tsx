@@ -2,13 +2,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
+  Image,
   LogBox,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 import { SvgProps } from "react-native-svg";
@@ -406,8 +407,9 @@ const dashboard = () => {
   const [id, setId] = React.useState<string | null>(null);
   const [userID, setUserID] = React.useState<string | null>(null);
   const [deviceName, setDeviceName] = React.useState<string | null>(null);
-
+  const [isOnline, setIsOnline] = React.useState<boolean>(false);
   const [viewState, setViewState] = React.useState<boolean>(false);
+  console.log("🔌 isOnline status:", isOnline);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -445,44 +447,39 @@ const dashboard = () => {
       let socket: WebSocket | null = null;
 
       const initializeWebSocket = () => {
-        try {
-          // * if it working refresh websocket connect
-          if (globalThis.websocket) {
-            globalThis.websocket.close();
-            console.log("WebSocket connection closed before reinitializing");
-          }
+        if (globalThis.websocket) {
+          globalThis.websocket.close();
+          console.log("WebSocket closed before reconnecting");
 
-          globalThis.websocket = new WebSocket(websocketURL);
-          socket = globalThis.websocket;
-          socket.onopen = () => {
-            console.log("WebSocket connection opened");
-          };
-
-          socket.onmessage = (event: MessageEvent) => {
-            try {
-              const message = event.data;
-              const parsedData = JSON.parse(message);
-              setData(parsedData);
-            } catch (parseError) {
-              console.error("Error parsing WebSocket message:", parseError);
-            }
-          };
-
-          socket.onerror = (error: Event) => {
-            const errorMessage = (error as any).message;
-            if (errorMessage !== "connection reset") {
-              console.error("WebSocket error:", error);
-            } else {
-              console.log("WebSocket connection reset error handled silently");
-            }
-          };
-
-          socket.onclose = (event: CloseEvent) => {
-            console.log("WebSocket connection closed", event.reason || "");
-          };
-        } catch (error) {
-          console.error("Error initializing WebSocket connection:", error);
         }
+
+        globalThis.websocket = new WebSocket(websocketURL);
+        socket = globalThis.websocket;
+
+        socket.onopen = () => {
+          console.log("✅ WebSocket connected");
+          setIsOnline(true); // ✅ Online
+        };
+
+        socket.onclose = () => {
+          console.log("❌ WebSocket disconnected");
+          setIsOnline(false); // ❌ Offline
+        };
+
+        socket.onerror = () => {
+          console.log("⚠️ WebSocket error");
+          setIsOnline(false); // ⚠️ Treat as offline
+        };
+
+        socket.onmessage = (event) => {
+          try {
+            const message = event.data;
+            const parsedData = JSON.parse(message);
+            setData(parsedData);
+          } catch (error) {
+            console.error("WebSocket parsing error:", error);
+          }
+        };
       };
 
       initializeWebSocket();
@@ -490,7 +487,7 @@ const dashboard = () => {
       return () => {
         if (socket) {
           socket.close();
-          console.log("WebSocket connection cleaned up");
+          console.log("Cleaned up socket");
         }
       };
     }, [websocketURL])
@@ -507,7 +504,7 @@ const dashboard = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <DeviceBoard isOnline={true} deviceName={deviceName as string} />
+      <DeviceBoard isOnline={isOnline} deviceName={deviceName as string} />
       <View style={styles.dataTitleWrapper}>
         <Text style={[styles.dataTitle, styles.fontFamily]}>
           Vibration sensor data
@@ -545,22 +542,24 @@ const dashboard = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {viewState ? (
-        <>
-          {data?.data ? (
-            <EachView data={data} />
-          ) : (
-            <Text>No data available</Text>
-          )}
-        </>
+      {data?.data ? (
+        viewState ? (
+          <EachView data={data} />
+        ) : (
+          <ListView data={data} />
+        )
       ) : (
-        <>
-          {data?.data ? (
-            <ListView data={data} />
-          ) : (
-            <Text>No data available</Text>
-          )}
-        </>
+        <View style={styles.emptyState}>
+          <Image
+            source={require("../../assets/images/NOA.png")}
+            style={styles.emptyImage}
+            resizeMode="contain"
+          />
+          <Text style={styles.emptyTitle}>No Data Value</Text>
+          <Text style={styles.emptySubtitle}>
+            Waiting for real-time sensor data to appear.
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -635,5 +634,30 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     justifyContent: "center",
     alignItems: "center",
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 30,
+  },
+  emptyImage: {
+    width: 140,
+    height: 110,
+    marginBottom: 20,
+    opacity: 0.8,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#666",
+    fontFamily: "Koulen",
+    marginBottom: 10,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
+    fontFamily: "Koulen",
   },
 });

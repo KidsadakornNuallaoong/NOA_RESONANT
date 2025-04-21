@@ -16,13 +16,10 @@ interface DateTimeProps {
 
 interface DeviceBoardProps {
   isOnline?: boolean;
-  deviceName?: string;
+  deviceName: string;
 }
 
-const DeviceBoard: React.FC<DeviceBoardProps> = ({
-  isOnline = false,
-  deviceName = "None",
-}) => {
+const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
   // * current date and time
   const [date, setDate] = React.useState<DateTimeProps>({
     day: new Date().getDate(),
@@ -87,11 +84,11 @@ const DeviceBoard: React.FC<DeviceBoardProps> = ({
         </View>
         <Text style={[styles.deviceTitle, styles.font]}>{`Device`}</Text>
         <Text
-          style={[styles.deviceName, styles.font]}
+          style={[styles.deviceName, { color: isOnline ? "#3FDE7F" : "#aaa" }]}
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {deviceName}
+          {isOnline ? deviceName : "No connection"}
         </Text>
       </View>
     </View>
