@@ -66,7 +66,7 @@ const DashboardLayout = () => {
         | "/frequency";
 
       if (targetPath) {
-        router.push({
+        router.replace({
           pathname: targetPath,
           params: {
             id: id?.toString(),

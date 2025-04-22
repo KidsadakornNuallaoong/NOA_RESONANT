@@ -402,106 +402,138 @@ interface PermissionsProps {
   deviceName: string;
 }
 const dashboard = () => {
-  const router = useRouter();
-  // * check if userID and deviceID from local storage first and then from params
   const {
     id: paramId,
     userID: paramUserID,
     deviceName: paramDeviceName,
   } = useLocalSearchParams();
 
-  const [id, setId] = React.useState<string | null>(null);
-  const [userID, setUserID] = React.useState<string | null>(null);
-  const [deviceName, setDeviceName] = React.useState<string | null>(null);
-
-  const [viewState, setViewState] = React.useState<boolean>(false);
+  const [id, setId] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
+  const [deviceName, setDeviceName] = useState<string | null>(null);
+  const [viewState, setViewState] = useState<boolean>(false);
+  const [data, setData] = useState<DataProps | null>(null);
+  const [isParamsReady, setIsParamsReady] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    console.log("Params changed →", { paramId, paramUserID, paramDeviceName });
+
+    const updateFromParams = async () => {
       const storedId = await AsyncStorage.getItem("id");
       const storedUserID = await AsyncStorage.getItem("userID");
       const storedDeviceName = await AsyncStorage.getItem("deviceName");
 
-      setId((typeof paramId === "string" ? paramId : null) || storedId);
-      setUserID(
-        (typeof paramUserID === "string" ? paramUserID : null) || storedUserID
-      );
-      setDeviceName(
+      const newId = (typeof paramId === "string" ? paramId : null) || storedId;
+      const newUserID =
+        (typeof paramUserID === "string" ? paramUserID : null) || storedUserID;
+      const newDeviceName =
         (typeof paramDeviceName === "string" ? paramDeviceName : null) ||
-          storedDeviceName
-      );
+        storedDeviceName;
 
-      if (paramId) await AsyncStorage.setItem("id", paramId as string);
-      if (paramUserID)
-        await AsyncStorage.setItem("userID", paramUserID as string);
-      if (paramDeviceName)
-        await AsyncStorage.setItem("deviceName", paramDeviceName as string);
+      setId(newId);
+      setUserID(newUserID);
+      setDeviceName(newDeviceName);
+      setIsParamsReady(true);
+      console.log("Current deviceName:", deviceName);
+      console.log("Updated state →", { newId, newUserID, newDeviceName });
     };
 
-    fetchData();
+    updateFromParams();
   }, [paramId, paramUserID, paramDeviceName]);
 
-  const websocketURL =
-    process.env.EXPO_PUBLIC_WEBSOCKET_URL +
-    `/ws/boadcast?userID=${userID}&deviceID=${id}`;
-
-  const [data, setData] = React.useState<DataProps | null>(null);
-
+  // ✅ WebSocket setup
   useFocusEffect(
     React.useCallback(() => {
+      if (!id || !userID) return;
+
       let socket: WebSocket | null = null;
+      const wsURL = `${process.env.EXPO_PUBLIC_WEBSOCKET_URL}/ws/boadcast?userID=${userID}&deviceID=${id}`;
 
-      const initializeWebSocket = () => {
+      console.log("Connecting WebSocket with:", wsURL);
+
+      if (globalThis.websocket) {
+        globalThis.websocket.close();
+      }
+
+      socket = new WebSocket(wsURL);
+      globalThis.websocket = socket;
+
+      socket.onopen = () => console.log("WebSocket connected");
+      socket.onmessage = (event) => {
         try {
-          // * if it working refresh websocket connect
-          if (globalThis.websocket) {
-            globalThis.websocket.close();
-            console.log("WebSocket connection closed before reinitializing");
-          }
-
-          globalThis.websocket = new WebSocket(websocketURL);
-          socket = globalThis.websocket;
-          socket.onopen = () => {
-            console.log("WebSocket connection opened");
-          };
-
-          socket.onmessage = (event: MessageEvent) => {
-            try {
-              const message = event.data;
-              const parsedData = JSON.parse(message);
-              setData(parsedData);
-            } catch (parseError) {
-              console.error("Error parsing WebSocket message:", parseError);
-            }
-          };
-
-          socket.onerror = (error: Event) => {
-            const errorMessage = (error as any).message;
-            if (errorMessage !== "connection reset") {
-              console.error("WebSocket error:", error);
-            } else {
-              console.log("WebSocket connection reset error handled silently");
-            }
-          };
-
-          socket.onclose = (event: CloseEvent) => {
-            console.log("WebSocket connection closed", event.reason || "");
-          };
-        } catch (error) {
-          console.error("Error initializing WebSocket connection:", error);
+          const parsed = JSON.parse(event.data);
+          setData(parsed);
+        } catch (err) {
+          console.error("Parse error", err);
         }
       };
-
-      initializeWebSocket();
+      socket.onerror = (err) => console.error("WebSocket error", err);
+      socket.onclose = () => console.log("WebSocket closed");
 
       return () => {
         if (socket) {
           socket.close();
-          console.log("WebSocket connection cleaned up");
+          console.log("WebSocket cleaned up");
         }
       };
-    }, [websocketURL])
+    }, [id, userID]) // ✅ ให้ผูกกับ id/userID โดยตรง
   );
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     let socket: WebSocket | null = null;
+
+  //     const initializeWebSocket = () => {
+  //       try {
+  //         // * if it working refresh websocket connect
+  //         if (globalThis.websocket) {
+  //           globalThis.websocket.close();
+  //           console.log("WebSocket connection closed before reinitializing");
+  //         }
+
+  //         globalThis.websocket = new WebSocket(websocketURL);
+  //         socket = globalThis.websocket;
+  //         socket.onopen = () => {
+  //           console.log("WebSocket connection opened");
+  //         };
+
+  //         socket.onmessage = (event: MessageEvent) => {
+  //           try {
+  //             const message = event.data;
+  //             const parsedData = JSON.parse(message);
+  //             setData(parsedData);
+  //           } catch (parseError) {
+  //             console.error("Error parsing WebSocket message:", parseError);
+  //           }
+  //         };
+
+  //         socket.onerror = (error: Event) => {
+  //           const errorMessage = (error as any).message;
+  //           if (errorMessage !== "connection reset") {
+  //             console.error("WebSocket error:", error);
+  //           } else {
+  //             console.log("WebSocket connection reset error handled silently");
+  //           }
+  //         };
+
+  //         socket.onclose = (event: CloseEvent) => {
+  //           console.log("WebSocket connection closed", event.reason || "");
+  //         };
+  //       } catch (error) {
+  //         console.error("Error initializing WebSocket connection:", error);
+  //       }
+  //     };
+
+  //     initializeWebSocket();
+
+  //     return () => {
+  //       if (socket) {
+  //         socket.close();
+  //         console.log("WebSocket connection cleaned up");
+  //       }
+  //     };
+  //   }, [websocketURL])
+  // );
 
   const handleChangeToEachView = () => {
     setViewState(true);
@@ -513,7 +545,14 @@ const dashboard = () => {
 
   return (
     <View style={styles.container}>
-      <DeviceBoard isOnline={true} deviceName={deviceName as string} />
+      {isParamsReady && deviceName ? (
+        <DeviceBoard isOnline={true} deviceName={deviceName} />
+      ) : (
+        <Text style={{ textAlign: "center", marginTop: 20 }}>
+          Loading Device Info...
+        </Text>
+      )}
+
       <View style={styles.dataTitleWrapper}>
         <Text style={[styles.dataTitle, styles.fontFamily]}>
           Vibration sensor data

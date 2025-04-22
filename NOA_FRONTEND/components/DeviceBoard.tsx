@@ -1,5 +1,4 @@
-import { DeviceContext } from "@/app/(dashboard)/_layout";
-import React, { useContext, useEffect } from "react";
+import React, { useEffect, memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
@@ -21,7 +20,6 @@ interface DeviceBoardProps {
 }
 
 const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
-  // * current date and time
   const [date, setDate] = React.useState<DateTimeProps>({
     day: new Date().getDate(),
     month: new Date().toLocaleString("default", { month: "long" }),
@@ -56,12 +54,10 @@ const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
   return (
     <View style={styles.container}>
       <View style={styles.dateTime}>
-        <Text
-          style={[styles.dateTitle, styles.font]}
-        >{`Current Date & Time`}</Text>
-        <Text
-          style={[styles.date, styles.font]}
-        >{`${date.day} ${date.month} ${date.year}`}</Text>
+        <Text style={[styles.dateTitle, styles.font]}>Current Date & Time</Text>
+        <Text style={[styles.date, styles.font]}>
+          {`${date.day} ${date.month} ${date.year}`}
+        </Text>
         <Text style={[styles.time, styles.font]}>
           {`${date.time.hours.toString().padStart(2, "0")}:${date.time.minutes
             .toString()
@@ -83,7 +79,7 @@ const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
             {isOnline ? `Online` : `Offline`}
           </Text>
         </View>
-        <Text style={[styles.deviceTitle, styles.font]}>{`Device`}</Text>
+        <Text style={[styles.deviceTitle, styles.font]}>Device</Text>
         <Text
           style={[styles.deviceName, { color: isOnline ? "#3FDE7F" : "#aaa" }]}
           numberOfLines={1}
@@ -96,7 +92,7 @@ const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
   );
 };
 
-export default DeviceBoard;
+export default memo(DeviceBoard); // ✅ optimize re-render only when props change
 
 const styles = StyleSheet.create({
   container: {
@@ -154,13 +150,11 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 20,
     fontFamily: "Koulen",
-    color: "#3FDE7F",
     overflow: "hidden",
     width: "100%",
     textAlign: "center",
     marginBottom: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingHorizontal: 10,
   },
   deviceStatus: {
     fontSize: 16,

@@ -225,13 +225,15 @@ export default function DeviceScreen() {
     );
     setDevices(updatedDevices);
     await AsyncStorage.setItem("DEVICES", JSON.stringify(updatedDevices));
+
     const token = await getToken();
     if (!token) return;
 
     const decoded: JwtPayload = jwtDecode(token);
     const userID = decoded.userID;
+
     router.push({
-      pathname: "/(dashboard)",
+      pathname: "/(dashboard)/dashboard",
       params: { id: device.id, userID, deviceName: device.name },
     });
   };
