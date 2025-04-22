@@ -56,7 +56,7 @@ export const NotificationProvider = ({
       if (!token || !wsUri) return;
 
       const { userID } = jwtDecode<{ userID: string }>(token);
-      // const wsUrl = ${wsUri}/ws/notification/${userID};
+      // const wsUrl = ${wsUri}/ws/notification?userID=${userID};
       const wsUrl = `${wsUri}/ws`;
 
       initNotificationWS(wsUrl, (parsed) => {
