@@ -17,11 +17,10 @@ interface DateTimeProps {
 
 interface DeviceBoardProps {
   isOnline?: boolean;
+  deviceName: string;
 }
 
-const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline }) => {
-  const { deviceName } = useContext(DeviceContext);
-
+const DeviceBoard: React.FC<DeviceBoardProps> = ({ isOnline, deviceName }) => {
   // * current date and time
   const [date, setDate] = React.useState<DateTimeProps>({
     day: new Date().getDate(),

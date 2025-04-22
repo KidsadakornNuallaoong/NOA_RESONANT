@@ -1,33 +1,38 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Image,
-  LogBox,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  LogBox,
 } from "react-native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import { useFonts } from "expo-font";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { SvgProps } from "react-native-svg";
 
-import VelSpdIcon from "@assets/icons/acute.svg";
-import VibDisIcon from "@assets/icons/animation.svg";
-import VelAngIcon from "@assets/icons/device_hub.svg";
-import FreqIcon from "@assets/icons/earthquake.svg";
-import VibAngIcon from "@assets/icons/Group 1.svg";
 import AcceIcon from "@assets/icons/readiness_score.svg";
+import VelAngIcon from "@assets/icons/device_hub.svg";
+import VelSpdIcon from "@assets/icons/acute.svg";
+import VibAngIcon from "@assets/icons/Group 1.svg";
+import VibDisIcon from "@assets/icons/animation.svg";
+import FreqIcon from "@assets/icons/earthquake.svg";
 
-import ListViewIconWhite from "@/assets/icons/modern-Icon/rowlist_fill.svg";
 import EachViewIconWhite from "../../assets/icons/modern-Icon/columnlist_nofill.svg";
+import ListViewIconWhite from "@/assets/icons/modern-Icon/rowlist_fill.svg";
 
 import ListViewIconBlack from "@/assets/icons/modern-Icon-black/filter_list.svg";
 import EachViewIconBlack from "@/assets/icons/modern-Icon-black/widget_small.svg";
 import DeviceBoard from "@/components/DeviceBoard";
-import Constants from "expo-constants";
 
 // === Sensor Data ===
 declare global {
@@ -408,9 +413,8 @@ const dashboard = () => {
   const [id, setId] = React.useState<string | null>(null);
   const [userID, setUserID] = React.useState<string | null>(null);
   const [deviceName, setDeviceName] = React.useState<string | null>(null);
-  const [isOnline, setIsOnline] = React.useState<boolean>(false);
+
   const [viewState, setViewState] = React.useState<boolean>(false);
-  console.log("🔌 isOnline status:", isOnline);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -436,9 +440,10 @@ const dashboard = () => {
 
     fetchData();
   }, [paramId, paramUserID, paramDeviceName]);
-  const BASE_WS_URL = Constants.expoConfig?.extra?.websocketUrl;
 
-  const websocketURL = `${BASE_WS_URL}/ws/boadcast?userID=${userID}&deviceID=${id}`;
+  const websocketURL =
+    process.env.EXPO_PUBLIC_WEBSOCKET_URL +
+    `/ws/boadcast?userID=${userID}&deviceID=${id}`;
 
   const [data, setData] = React.useState<DataProps | null>(null);
 
@@ -447,38 +452,44 @@ const dashboard = () => {
       let socket: WebSocket | null = null;
 
       const initializeWebSocket = () => {
-        if (globalThis.websocket) {
-          globalThis.websocket.close();
-          console.log("WebSocket closed before reconnecting");
-        }
-
-        globalThis.websocket = new WebSocket(websocketURL);
-        socket = globalThis.websocket;
-
-        socket.onopen = () => {
-          console.log("✅ WebSocket connected");
-          setIsOnline(true); // ✅ Online
-        };
-
-        socket.onclose = () => {
-          console.log("❌ WebSocket disconnected");
-          setIsOnline(false); // ❌ Offline
-        };
-
-        socket.onerror = () => {
-          console.log("⚠️ WebSocket error");
-          setIsOnline(false); // ⚠️ Treat as offline
-        };
-
-        socket.onmessage = (event) => {
-          try {
-            const message = event.data;
-            const parsedData = JSON.parse(message);
-            setData(parsedData);
-          } catch (error) {
-            console.error("WebSocket parsing error:", error);
+        try {
+          // * if it working refresh websocket connect
+          if (globalThis.websocket) {
+            globalThis.websocket.close();
+            console.log("WebSocket connection closed before reinitializing");
           }
-        };
+
+          globalThis.websocket = new WebSocket(websocketURL);
+          socket = globalThis.websocket;
+          socket.onopen = () => {
+            console.log("WebSocket connection opened");
+          };
+
+          socket.onmessage = (event: MessageEvent) => {
+            try {
+              const message = event.data;
+              const parsedData = JSON.parse(message);
+              setData(parsedData);
+            } catch (parseError) {
+              console.error("Error parsing WebSocket message:", parseError);
+            }
+          };
+
+          socket.onerror = (error: Event) => {
+            const errorMessage = (error as any).message;
+            if (errorMessage !== "connection reset") {
+              console.error("WebSocket error:", error);
+            } else {
+              console.log("WebSocket connection reset error handled silently");
+            }
+          };
+
+          socket.onclose = (event: CloseEvent) => {
+            console.log("WebSocket connection closed", event.reason || "");
+          };
+        } catch (error) {
+          console.error("Error initializing WebSocket connection:", error);
+        }
       };
 
       initializeWebSocket();
@@ -486,7 +497,7 @@ const dashboard = () => {
       return () => {
         if (socket) {
           socket.close();
-          console.log("Cleaned up socket");
+          console.log("WebSocket connection cleaned up");
         }
       };
     }, [websocketURL])
@@ -502,13 +513,7 @@ const dashboard = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      {deviceName ? (
-        <DeviceBoard isOnline={isOnline} />
-      ) : (
-        <Text>Loading device...</Text>
-      )}
-
+      <DeviceBoard isOnline={true} deviceName={deviceName as string} />
       <View style={styles.dataTitleWrapper}>
         <Text style={[styles.dataTitle, styles.fontFamily]}>
           Vibration sensor data
@@ -546,24 +551,22 @@ const dashboard = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {data?.data ? (
-        viewState ? (
-          <EachView data={data} />
-        ) : (
-          <ListView data={data} />
-        )
+      {viewState ? (
+        <>
+          {data?.data ? (
+            <EachView data={data} />
+          ) : (
+            <Text>No data available</Text>
+          )}
+        </>
       ) : (
-        <View style={styles.emptyState}>
-          <Image
-            source={require("../../assets/images/NOA.png")}
-            style={styles.emptyImage}
-            resizeMode="contain"
-          />
-          <Text style={styles.emptyTitle}>No Data Available</Text>
-          <Text style={styles.emptySubtitle}>
-            Waiting for real-time sensor data to appear.
-          </Text>
-        </View>
+        <>
+          {data?.data ? (
+            <ListView data={data} />
+          ) : (
+            <Text>No data available</Text>
+          )}
+        </>
       )}
     </View>
   );
@@ -638,30 +641,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     justifyContent: "center",
     alignItems: "center",
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 30,
-  },
-  emptyImage: {
-    width: 140,
-    height: 110,
-    marginBottom: 20,
-    opacity: 0.8,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#666",
-    fontFamily: "Koulen",
-    marginBottom: 10,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#999",
-    textAlign: "center",
-    fontFamily: "Koulen",
   },
 });
