@@ -19,7 +19,7 @@ const TempGauge: React.FC<Props> = ({ value }) => {
   return (
     <View style={styles.wrapper}>
       <AnimatedCircularProgress
-        size={180}
+        size={240}
         width={10}
         fill={value}
         tintColor={getColor(value)}
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
   },
   inner: {
     backgroundColor: "#2d2d2d",
-    width: 180,
-    height: 180,
+    width: 240,
+    height: 240,
     borderRadius: 90,
     justifyContent: "center",
     alignItems: "center",

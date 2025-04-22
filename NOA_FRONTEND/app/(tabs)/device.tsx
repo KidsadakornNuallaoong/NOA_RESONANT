@@ -321,6 +321,8 @@ export default function DeviceScreen() {
               color={isEven ? "white" : "black"}
             />
             <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
               style={[styles.deviceName, { color: isEven ? "#fff" : "#000" }]}
             >
               Device : {item.name}

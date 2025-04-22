@@ -250,6 +250,8 @@ export default function BookmarkScreen() {
               color={isEven ? "white" : "black"}
             />
             <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
               style={[styles.deviceName, { color: isEven ? "#fff" : "#000" }]}
             >
               Device : {item.name}
@@ -368,9 +370,15 @@ export default function BookmarkScreen() {
     <TouchableOpacity onPress={() => handleNavigate(item)}>
       <View style={styles.gridCard}>
         <View style={styles.topRow}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
             <View style={styles.statusDot} />
-            <Text style={styles.deviceId}>{item.name}</Text>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={[styles.deviceId, { flexShrink: 1 }]}
+            >
+              {item.name}
+            </Text>
           </View>
           <View style={{ flexDirection: "row", gap: 6 }}>
             <Ionicons
@@ -384,12 +392,13 @@ export default function BookmarkScreen() {
               size={16}
               color="#ff4d4f"
               onPress={(e) => {
-                e.stopPropagation(); // หยุดการ propagate ของ event
+                e.stopPropagation();
                 confirmDelete(item.id);
               }}
             />
           </View>
         </View>
+
         {renderDonut()}
         <View style={styles.rowCenter}>
           <Text style={styles.labelRed}>Fault</Text>

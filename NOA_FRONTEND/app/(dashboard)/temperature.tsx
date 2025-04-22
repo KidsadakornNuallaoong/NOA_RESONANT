@@ -5,6 +5,7 @@ import DeviceDate from "@/components/SensorChart/DeviceDate";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import wsDashboard from "@/service/wsDashboard";
 import TempData from "@/components/SensorChart/TempData";
+import TempIcon from "@/assets/icons/device_thermostat_fixed.svg";
 
 const TemperatureScreen = () => {
   const { id, userID, deviceName } = useLocalSearchParams();
@@ -42,9 +43,19 @@ const TemperatureScreen = () => {
     <View style={styles.container}>
       <DeviceDate deviceID={deviceID} userID={user} deviceName={name} />
       <TempData value={temperature} />
-
-      <Text style={styles.tableTitle}>TEMPERATURE</Text>
       <View style={styles.tableHeader}>
+        <View style={styles.headerLeft}>
+          <TempIcon
+            width={18}
+            height={18}
+            color={"#fff"}
+            style={{ marginRight: 6 }}
+          />
+          <Text style={styles.headerText}>TEMPERATURE</Text>
+        </View>
+      </View>
+
+      <View style={styles.tableColumnHeader}>
         <Text style={styles.tableCol}>TIMESTAMP</Text>
         <Text style={styles.tableCol}>TEMPERATURE</Text>
       </View>
@@ -79,6 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 40,
   },
+
   tableTitle: {
     fontSize: 16,
     fontWeight: "bold",
@@ -88,9 +100,26 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "#111",
-    padding: 10,
+    justifyContent: "center",
+    backgroundColor: "#2d2d2d",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  headerText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "Koulen",
   },
   tableCol: {
     color: "#fff",
@@ -98,6 +127,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     flex: 1,
     textAlign: "center",
+  },
+  tableColumnHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#2d2d2d",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
   row: {
     flexDirection: "row",
