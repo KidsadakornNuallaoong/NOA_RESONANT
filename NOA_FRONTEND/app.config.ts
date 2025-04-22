@@ -9,6 +9,7 @@ export default {
     name: "NOA_FRONTEND",
     slug: "NOA_FRONTEND",
     version: "1.0.0",
+    SDKVersion: "48.0.0",
     orientation: "portrait",
     icon: "./assets/images/NOA_LOGO.png",
     scheme: "myapp",
@@ -27,6 +28,8 @@ export default {
         foregroundImage: "./assets/images/NOA_LOGO.png",
         backgroundColor: "#ffffff",
       },
+      
+      usesCleartextTraffic: true,
     },
     web: {
       bundler: "metro",
@@ -38,10 +41,9 @@ export default {
       typedRoutes: true,
     },
     extra: {
-      API: process.env.API_URL,
-      apiUrl: process.env.EXPO_PUBLIC_API_URL,
-      websocketUrl: process.env.EXPO_PUBLIC_WEBSOCKET_URL,
-      notiSocketUrl: process.env.EXPO_PUBLIC_NOTI_WEBSOCKET_URL,
+      eas: {
+        projectId: ""
+      }
     },
     fonts: {
       "Inter_18pt-Medium": "./assets/fonts/Inter_18pt-Medium.ttf",

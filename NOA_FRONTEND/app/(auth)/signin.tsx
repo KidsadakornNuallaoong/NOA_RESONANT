@@ -1,27 +1,22 @@
 import {
+  getRememberedEmail,
+  saveRememberedEmail,
+  saveToken
+} from "@/utils/secureStore";
+import { Ionicons } from "@expo/vector-icons";
+import Checkbox from "expo-checkbox";
+import { Link, router, Stack } from "expo-router";
+import { jwtDecode } from "jwt-decode";
+import React, { useEffect, useState } from "react";
+import {
   Image,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  KeyboardAvoidingView,
-  Platform,
+  View
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Link, router, Stack } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import Checkbox from "expo-checkbox";
-import {
-  clearRememberedEmail,
-  clearToken,
-  getRememberedEmail,
-  saveRememberedEmail,
-  saveToken,
-} from "@/utils/secureStore";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
-import { jwtDecode } from "jwt-decode";
-import Constants from "expo-constants";
 
 interface DecodedToken {
   userID: string;
@@ -55,7 +50,8 @@ const SignInScreen = () => {
 
     setError("");
     setIsLoading(true);
-    const API = `${Constants.expoConfig?.extra?.apiUrl}/login`;
+    // const API = `${process.env.EXPO_PUBLIC_API_URL}/login`;
+    const API = "http://104.214.174.39:8000/login";
 
     try {
       const response = await fetch(API, {

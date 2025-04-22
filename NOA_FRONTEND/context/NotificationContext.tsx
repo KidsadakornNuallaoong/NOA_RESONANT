@@ -1,12 +1,11 @@
 // ✅ NotificationContext.tsx
-import React, { createContext, useContext, useEffect, useState } from "react";
 import {
-  initNotificationWS,
   closeNotificationWS,
+  initNotificationWS,
 } from "@/service/wsNotificationService";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
-import Constants from "expo-constants";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 export interface NotificationItem {
   type: "warning" | "caution" | "success" | "expire";
@@ -50,7 +49,7 @@ export const NotificationProvider = ({
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   useEffect(() => {
-    const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
+    const wsUri = process.env.EXPO_PUBLIC_WEBSOCKET_URL;
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;

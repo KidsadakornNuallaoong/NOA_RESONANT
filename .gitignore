@@ -31,3 +31,5 @@ google-services.json
 
 # Android Profiling
 *.hprof
+NOA_FRONTEND/package-lock.json
+NOA_FRONTEND/app.config.ts

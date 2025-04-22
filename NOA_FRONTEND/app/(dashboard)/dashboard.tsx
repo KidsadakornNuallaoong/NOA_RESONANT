@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useEffect } from "react";
 import {
   Image,
@@ -27,7 +27,6 @@ import EachViewIconWhite from "../../assets/icons/modern-Icon/columnlist_nofill.
 import ListViewIconBlack from "@/assets/icons/modern-Icon-black/filter_list.svg";
 import EachViewIconBlack from "@/assets/icons/modern-Icon-black/widget_small.svg";
 import DeviceBoard from "@/components/DeviceBoard";
-import Constants from "expo-constants";
 
 // === Sensor Data ===
 declare global {
@@ -391,13 +390,7 @@ const ListView: React.FC<{ data: DataProps }> = ({ data }) => {
   );
 };
 
-interface PermissionsProps {
-  id: string;
-  userID: string;
-  deviceName: string;
-}
 const dashboard = () => {
-  const router = useRouter();
   // * check if userID and deviceID from local storage first and then from params
   const {
     id: paramId,
@@ -427,19 +420,19 @@ const dashboard = () => {
           storedDeviceName
       );
 
-      if (paramId) await AsyncStorage.setItem("id", paramId as string);
-      if (paramUserID)
-        await AsyncStorage.setItem("userID", paramUserID as string);
-      if (paramDeviceName)
-        await AsyncStorage.setItem("deviceName", paramDeviceName as string);
+      if (typeof paramId === "string") await AsyncStorage.setItem("id", paramId);
+      if (typeof paramUserID === "string")
+        await AsyncStorage.setItem("userID", paramUserID);
+      if (typeof paramDeviceName === "string")
+        await AsyncStorage.setItem("deviceName", paramDeviceName);
     };
 
     fetchData();
   }, [paramId, paramUserID, paramDeviceName]);
-  const BASE_WS_URL = Constants.expoConfig?.extra?.websocketUrl;
+  const BASE_WS_URL = process.env.EXPO_PUBLIC_WEBSOCKET_URL;
 
   const websocketURL = `${BASE_WS_URL}/ws/boadcast?userID=${userID}&deviceID=${id}`;
-
+  console.log("🔌 WebSocket URL:", websocketURL);
   const [data, setData] = React.useState<DataProps | null>(null);
 
   useFocusEffect(
