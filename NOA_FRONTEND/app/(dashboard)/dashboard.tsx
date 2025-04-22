@@ -551,22 +551,24 @@ const dashboard = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {viewState ? (
-        <>
-          {data?.data ? (
-            <EachView data={data} />
-          ) : (
-            <Text>No data available</Text>
-          )}
-        </>
+      {data?.data ? (
+        viewState ? (
+          <EachView data={data} />
+        ) : (
+          <ListView data={data} />
+        )
       ) : (
-        <>
-          {data?.data ? (
-            <ListView data={data} />
-          ) : (
-            <Text>No data available</Text>
-          )}
-        </>
+        <View style={styles.emptyState}>
+          <Image
+            source={require("../../assets/images/NOA.png")}
+            style={styles.emptyImage}
+            resizeMode="contain"
+          />
+          <Text style={styles.emptyTitle}>No Data Available</Text>
+          <Text style={styles.emptySubtitle}>
+            Waiting for real-time sensor data to appear.
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -641,5 +643,30 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     justifyContent: "center",
     alignItems: "center",
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 30,
+  },
+  emptyImage: {
+    width: 140,
+    height: 110,
+    marginBottom: 20,
+    opacity: 0.8,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#666",
+    fontFamily: "Koulen",
+    marginBottom: 10,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
+    fontFamily: "Koulen",
   },
 });
