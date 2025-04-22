@@ -50,14 +50,14 @@ export const NotificationProvider = ({
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   useEffect(() => {
-    const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
+    const wsUri = Constants.expoConfig?.extra?.websocketUrl;
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;
 
       const { userID } = jwtDecode<{ userID: string }>(token);
-      // const wsUrl = ${wsUri}/ws/notification?userID=${userID};
-      const wsUrl = `${wsUri}/ws`;
+      const wsUrl = `${wsUri}/ws/history?userID=${userID}`;
+      // const wsUrl = `${wsUri}/ws`;
 
       initNotificationWS(wsUrl, (parsed) => {
         console.log("📥 Received from WebSocket:", parsed); // ⬅️ ต้องเห็น

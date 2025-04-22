@@ -56,6 +56,7 @@ const DashboardLayout = () => {
         VibrationAngle: "/vibrationAngle",
         "Vibration Displacement": "/vibrationDisplacement",
         Frequency: "/frequency",
+        Temperature: "/temperature",
       }[category] as
         | "/dashboard"
         | "/acceleration"
@@ -63,7 +64,8 @@ const DashboardLayout = () => {
         | "/vibrationSpeed"
         | "/vibrationAngle"
         | "/vibrationDisplacement"
-        | "/frequency";
+        | "/frequency"
+        | "/temperature";
 
       if (targetPath) {
         router.replace({
@@ -95,6 +97,7 @@ const DashboardLayout = () => {
           { name: "vibrationAngle", title: "Vibration Angle" },
           { name: "vibrationDisplacement", title: "Vibration Displacement" },
           { name: "frequency", title: "Frequency" },
+          { name: "temperature", title: "Temperature" },
         ].map((screen) => (
           <Tabs.Screen
             key={screen.name}

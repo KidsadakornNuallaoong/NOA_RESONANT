@@ -17,6 +17,7 @@ import VelSpdIcon from "../assets/icons/acute.svg";
 import VibAngIcon from "../assets/icons/Group 1.svg";
 import VibDisIcon from "../assets/icons/animation.svg";
 import FreqIcon from "../assets/icons/earthquake.svg";
+import TempIcon from "../assets/icons/device_thermostat_fixed.svg";
 
 // ✅ Tab items array
 const tabItems = [
@@ -27,6 +28,7 @@ const tabItems = [
   { label: "VIB.ANG", value: "VibrationAngle", icon: VibAngIcon },
   { label: "VIB.DIS", value: "Vibration Displacement", icon: VibDisIcon },
   { label: "FREQ", value: "Frequency", icon: FreqIcon },
+  { label: "TEMP", value: "Temperature", icon: TempIcon },
 ];
 
 interface Props {

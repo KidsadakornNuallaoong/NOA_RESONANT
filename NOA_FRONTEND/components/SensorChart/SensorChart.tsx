@@ -7,9 +7,6 @@ import ChartSection from "./ChartSection";
 import DeviceDate from "./DeviceDate";
 import SensorDataTable from "./SensorDataTable";
 
-type Axis = "x" | "y" | "z";
-type ChartType = "line";
-
 interface Props {
   sensorKey: keyof SensorReading["x"];
   title: string;
