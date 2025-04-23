@@ -7,6 +7,7 @@ import { closeHistoryWS, initHistoryWS } from "@/service/wsHistory";
 export interface PredictionItem {
   type: "WARNING" | "CAUTION";
   deviceID: string;
+  predictionClass: string;
   probability: number;
   time: string;
 }
@@ -49,6 +50,7 @@ export const PredictionProvider = ({
         const item: PredictionItem = {
           type: data.predictedClass === "Fault" ? "WARNING" : "CAUTION",
           deviceID: data.deviceID,
+          predictionClass: data.predictionClass,
           probability: parseFloat(data.result?.[0]?.[2]?.toFixed(2)) || 0,
           time: new Date().toLocaleTimeString([], {
             hour: "2-digit",

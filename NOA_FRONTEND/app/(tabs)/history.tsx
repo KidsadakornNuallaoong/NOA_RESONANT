@@ -19,9 +19,7 @@ const PredictionHistory: React.FC = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.headerText, { fontFamily: "Koulen" }]}>
-          PREDICTION HISTORY
-        </Text>
+        <Text style={[styles.headerText, { fontFamily: "Koulen" }]}>PREDICTION HISTORY</Text>
       </View>
 
       <View style={styles.historyHeader}>
@@ -37,10 +35,7 @@ const PredictionHistory: React.FC = () => {
           <Image source={iconMap[alert.type]} style={styles.alertIcon} />
           <View style={styles.alertTextContainer}>
             <Text
-              style={[
-                styles.alertType,
-                alert.type === "WARNING" ? styles.warning : styles.caution,
-              ]}
+              style={[styles.alertType, alert.type === "WARNING" ? styles.warning : styles.caution]}
             >
               {alert.type}
               <Image
@@ -51,10 +46,10 @@ const PredictionHistory: React.FC = () => {
             </Text>
             <Text style={styles.alertDetail}>Device ID: {alert.deviceID}</Text>
             <Text style={styles.alertBold}>
-              Probability:{" "}
-              <Text style={styles.alertNormal}>
-                {alert.probability.toFixed(2)}%
-              </Text>
+              Class: <Text style={styles.alertNormal}>{alert.predictionClass}</Text>
+            </Text>
+            <Text style={styles.alertBold}>
+              Probability: <Text style={styles.alertNormal}>{alert.probability.toFixed(2)}%</Text>
             </Text>
             <Text style={styles.alertTimeAgo}>{alert.time}</Text>
           </View>
