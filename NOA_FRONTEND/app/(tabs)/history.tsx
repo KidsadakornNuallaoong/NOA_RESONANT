@@ -1,17 +1,7 @@
-import { getToken } from "@/utils/secureStore";
-import { jwtDecode } from "jwt-decode";
-import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import Constants from "expo-constants";
-
-type AlertItem = {
-  type: "WARNING" | "CAUTION";
-  date: string;
-  time: string;
-  imbalance: string;
-  overheating: string;
-  timeAgo: string;
-};
+// ✅ PredictionHistory.tsx
+import { usePredictionHistory } from "@/context/HistoryContext";
+import React from "react";
+import { ScrollView, StyleSheet, Text, View, Image } from "react-native";
 
 const iconMap = {
   WARNING: require("../../assets/images/Warning.png"),
@@ -24,34 +14,7 @@ const iconTextMap = {
 };
 
 const PredictionHistory: React.FC = () => {
-  const [predictions, setPredictions] = useState<AlertItem[]>([]);
-
-  useEffect(() => {
-    const fetchPredictionHistory = async () => {
-      try {
-        const token = await getToken();
-        const decoded: { userID: string } = jwtDecode(token!);
-        const userID = decoded.userID;
-        const API = Constants.expoConfig?.extra?.apiUrl;
-
-        // waiting for history API
-        const res = await fetch(`${API}/prediction-history?userID=${userID}`);
-        const data = await res.json();
-
-        // เช็คตรงนี้
-        if (Array.isArray(data.predictions)) {
-          setPredictions(data.predictions);
-        } else {
-          setPredictions([]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch predictions:", err);
-        setPredictions([]);
-      }
-    };
-
-    fetchPredictionHistory();
-  }, []);
+  const { predictions } = usePredictionHistory();
 
   return (
     <ScrollView style={styles.container}>
@@ -66,7 +29,6 @@ const PredictionHistory: React.FC = () => {
         <Image
           source={require("../../assets/images/History.png")}
           style={styles.historyIcon}
-          resizeMode="contain"
         />
       </View>
 
@@ -87,23 +49,14 @@ const PredictionHistory: React.FC = () => {
                 resizeMode="contain"
               />
             </Text>
-
-            <Text style={styles.alertDetail}>
-              Date: {alert.date} Time: {alert.time}
-            </Text>
+            <Text style={styles.alertDetail}>Device ID: {alert.deviceID}</Text>
             <Text style={styles.alertBold}>
-              Critical Alert:{" "}
+              Probability:{" "}
               <Text style={styles.alertNormal}>
-                Device 1×80AC requires attention
+                {alert.probability.toFixed(2)}%
               </Text>
             </Text>
-            <Text style={styles.alertBold}>
-              Imbalance:{" "}
-              <Text style={styles.alertNormal}>{alert.imbalance}</Text>{" "}
-              Overheating:{" "}
-              <Text style={styles.alertNormal}>{alert.overheating}</Text>
-            </Text>
-            <Text style={styles.alertTimeAgo}>{alert.timeAgo}</Text>
+            <Text style={styles.alertTimeAgo}>{alert.time}</Text>
           </View>
         </View>
       ))}

@@ -1,4 +1,4 @@
-// ✅ NotificationContext.tsx
+// ✅ NotificationContext.tsx (with mapping support for prediction data)
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   initNotificationWS,
@@ -14,7 +14,7 @@ export interface NotificationItem {
   message: string;
   details: string;
   time: string;
-  read?: boolean; // ✅ เพิ่มฟิลด์ read
+  read?: boolean;
 }
 
 interface NotificationContextType {
@@ -36,11 +36,38 @@ export const useNotifications = (): NotificationContextType => {
   return context;
 };
 
-// ✅ Hook สำหรับแสดงจำนวน noti ที่ยังไม่ได้อ่าน
 export const useNotificationCount = () => {
   const context = useContext(NotificationContext);
   if (!context) throw new Error("Must use within NotificationProvider");
   return context.notifications.filter((n) => !n.read).length;
+};
+
+const mapIncomingToNotification = (data: any): NotificationItem => {
+  if (data.predictedClass) {
+    return {
+      type: data.predictedClass === "Fault" ? "warning" : "caution",
+      title: "Prediction Alert",
+      message: `Device ${data.deviceID} is predicted as ${data.predictedClass}`,
+      details: `Probability: ${data.result?.[0]?.[2]?.toFixed(2) ?? "?"}%`,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      read: false,
+    };
+  }
+
+  return {
+    type: data.type || "warning",
+    title: data.title || "Notification",
+    message: data.message || "You have a new message",
+    details: data.details || "Details not provided",
+    time: new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    read: false,
+  };
 };
 
 export const NotificationProvider = ({
@@ -49,28 +76,19 @@ export const NotificationProvider = ({
   children: React.ReactNode;
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
   useEffect(() => {
     const wsUri = Constants.expoConfig?.extra?.websocketUrl;
+
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;
 
       const { userID } = jwtDecode<{ userID: string }>(token);
-      const wsUrl = `${wsUri}/ws/history?userID=${userID}`;
-      // const wsUrl = `${wsUri}/ws`;
+      const wsUrl = `${wsUri}/ws/notificaton?userID=${userID}`;
 
-      initNotificationWS(wsUrl, (parsed) => {
-        console.log("📥 Received from WebSocket:", parsed); // ⬅️ ต้องเห็น
-        const now = new Date();
-        const newNoti: NotificationItem = {
-          ...parsed,
-
-          time: now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          read: false,
-        };
+      initNotificationWS(wsUrl, (incomingData) => {
+        const newNoti = mapIncomingToNotification(incomingData);
         setNotifications((prev) => [newNoti, ...prev]);
       });
     };

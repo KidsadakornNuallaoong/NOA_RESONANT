@@ -1,3 +1,4 @@
+import { PredictionProvider } from "@/context/HistoryContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
@@ -32,9 +33,11 @@ export default function RootLayout() {
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <NotificationProvider>
-        <RootLayoutNav />
-      </NotificationProvider>
+      <PredictionProvider>
+        <NotificationProvider>
+          <RootLayoutNav />
+        </NotificationProvider>
+      </PredictionProvider>
     </View>
   );
 }

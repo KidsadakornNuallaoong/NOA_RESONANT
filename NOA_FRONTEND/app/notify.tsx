@@ -1,7 +1,4 @@
-import {
-  useNotificationCount,
-  useNotifications,
-} from "@/context/NotificationContext";
+import { useNotifications } from "@/context/NotificationContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import React, { useEffect } from "react";
