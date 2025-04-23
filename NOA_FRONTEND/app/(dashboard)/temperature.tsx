@@ -1,5 +1,5 @@
 // TemperatureScreen.tsx
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useState } from "react";
 import DeviceDate from "@/components/SensorChart/DeviceDate";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -43,40 +43,54 @@ const TemperatureScreen = () => {
     <View style={styles.container}>
       <DeviceDate deviceID={deviceID} userID={user} deviceName={name} />
       <TempData value={temperature} />
-      <View style={styles.tableHeader}>
-        <View style={styles.headerLeft}>
-          <TempIcon
-            width={18}
-            height={18}
-            color={"#fff"}
-            style={{ marginRight: 6 }}
-          />
-          <Text style={styles.headerText}>TEMPERATURE</Text>
-        </View>
-      </View>
 
-      <View style={styles.tableColumnHeader}>
-        <Text style={styles.tableCol}>TIMESTAMP</Text>
-        <Text style={styles.tableCol}>TEMPERATURE</Text>
-      </View>
-
-      <FlatList
-        data={data}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(_, index) => index.toString()}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item, index }) => (
-          <View
-            style={[
-              styles.row,
-              { backgroundColor: index % 2 === 0 ? "#ffffff" : "#f2f4fa" },
-            ]}
-          >
-            <Text style={styles.rowText}>{item.timestamp}</Text>
-            <Text style={styles.rowText}>{item.value.toFixed(2)}°C</Text>
+      {data.length === 0 ? (
+        <>
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require("../../assets/images/NOA.png")}
+              style={styles.emptyImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.emptyText}>No temperature data available</Text>
           </View>
-        )}
-      />
+        </>
+      ) : (
+        <>
+          <View style={styles.tableHeader}>
+            <View style={styles.headerLeft}>
+              <TempIcon
+                width={18}
+                height={18}
+                color={"#fff"}
+                style={{ marginRight: 6 }}
+              />
+              <Text style={styles.headerText}>TEMPERATURE</Text>
+            </View>
+          </View>
+          <View style={styles.tableColumnHeader}>
+            <Text style={styles.tableCol}>TIMESTAMP</Text>
+            <Text style={styles.tableCol}>TEMPERATURE</Text>
+          </View>
+          <FlatList
+            data={data}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(_, index) => index.toString()}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            renderItem={({ item, index }) => (
+              <View
+                style={[
+                  styles.row,
+                  { backgroundColor: index % 2 === 0 ? "#ffffff" : "#f2f4fa" },
+                ]}
+              >
+                <Text style={styles.rowText}>{item.timestamp}</Text>
+                <Text style={styles.rowText}>{item.value.toFixed(2)}°C</Text>
+              </View>
+            )}
+          />
+        </>
+      )}
     </View>
   );
 };
@@ -147,5 +161,21 @@ const styles = StyleSheet.create({
     fontFamily: "Koulen",
     flex: 1,
     textAlign: "center",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  emptyImage: {
+    width: 140,
+    height: 110,
+    opacity: 0.7,
+    marginBottom: 10,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontFamily: "Koulen",
+    color: "#999",
   },
 });
