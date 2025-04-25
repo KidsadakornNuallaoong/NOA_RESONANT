@@ -1,3 +1,4 @@
+// ✅ PredictionContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
@@ -36,27 +37,45 @@ export const PredictionProvider = ({
   children: React.ReactNode;
 }) => {
   const [predictions, setPredictions] = useState<PredictionItem[]>([]);
-  const wsUri = Constants.expoConfig?.extra?.websocketUrl;
+  // const wsUri = Constants.expoConfig?.extra?.websocketUrl;
+  const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
 
   useEffect(() => {
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;
       const { userID } = jwtDecode<{ userID: string }>(token);
-      const wsUrl = `${wsUri}/ws/history?userID=${userID}`;
+      // const wsUrl = `${wsUri}/ws/history?userID=${userID}`; // use this one for product
+      const wsUrl = `${wsUri}/ws/history`; // for test
+
+      const classIndexMap = {
+        Fault: 2,
+        Normal: 1,
+        Close: 0,
+      };
 
       initHistoryWS(wsUrl, (data) => {
-        if (!data.predictedClass || !data.deviceID) return;
+        if (!data.predictedClass || !data.deviceID || !data.result) return;
+
+        const index =
+          classIndexMap[data.predictedClass as keyof typeof classIndexMap];
+        const probability =
+          parseFloat(data.result[0]?.[index]?.toFixed(2)) || 0;
+
+        // ถ้า predictedClass เป็น Close แล้วไม่ต้องแสดง
+        if (data.predictedClass === "Close") return;
+
         const item: PredictionItem = {
           type: data.predictedClass === "Fault" ? "WARNING" : "CAUTION",
           deviceID: data.deviceID,
-          predictionClass: data.predictionClass,
-          probability: parseFloat(data.result?.[0]?.[2]?.toFixed(2)) || 0,
+          predictionClass: data.predictedClass,
+          probability,
           time: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           }),
         };
+
         setPredictions((prev) => [item, ...prev]);
       });
     };

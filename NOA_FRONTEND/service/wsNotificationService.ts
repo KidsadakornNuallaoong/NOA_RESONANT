@@ -20,7 +20,7 @@ export const initNotificationWS = (
   };
 
   socket.onclose = () => {
-    console.log("❎ WebSocket disconnected");
+    console.log("❎ WebSocket disconnected for Notification");
   };
 };
 

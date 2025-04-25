@@ -1,4 +1,4 @@
-// ✅ NotificationContext.tsx (with mapping support for prediction data)
+// ✅ NotificationContext.tsx (with improved prediction handling)
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   initNotificationWS,
@@ -31,7 +31,7 @@ export const useNotifications = (): NotificationContextType => {
   const context = useContext(NotificationContext);
   if (!context)
     throw new Error(
-      "useNotifications must be used within a NotificationProvider"
+      "useNotifications must be used within NotificationProvider"
     );
   return context;
 };
@@ -42,13 +42,20 @@ export const useNotificationCount = () => {
   return context.notifications.filter((n) => !n.read).length;
 };
 
-const mapIncomingToNotification = (data: any): NotificationItem => {
+// ✅ Mapping function with Close filtering and max probability logic
+const mapIncomingToNotification = (data: any): NotificationItem | null => {
+  if (data.predictedClass === "Close") return null;
+
   if (data.predictedClass) {
+    const maxProb = Math.max(
+      ...(data.result?.map((r: number[]) => r[2]) ?? [0])
+    );
+
     return {
       type: data.predictedClass === "Fault" ? "warning" : "caution",
       title: "Prediction Alert",
       message: `Device ${data.deviceID} is predicted as ${data.predictedClass}`,
-      details: `Probability: ${data.result?.[0]?.[2]?.toFixed(2) ?? "?"}%`,
+      details: `Highest Probability: ${maxProb.toFixed(2)}%`,
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -76,19 +83,20 @@ export const NotificationProvider = ({
   children: React.ReactNode;
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
 
   useEffect(() => {
-    const wsUri = Constants.expoConfig?.extra?.websocketUrl;
-
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;
 
       const { userID } = jwtDecode<{ userID: string }>(token);
-      const wsUrl = `${wsUri}/ws/notificaton?userID=${userID}`;
+      // const wsUrl = `${wsUri}/ws/notificaton?userID=${userID}`; // use this one
+      const wsUrl = `${wsUri}/ws/notificaton`; // for test
 
       initNotificationWS(wsUrl, (incomingData) => {
         const newNoti = mapIncomingToNotification(incomingData);
+        if (!newNoti) return;
         setNotifications((prev) => [newNoti, ...prev]);
       });
     };
@@ -98,10 +106,8 @@ export const NotificationProvider = ({
   }, []);
 
   const clearNotifications = () => setNotifications([]);
-
-  const markAllAsRead = () => {
+  const markAllAsRead = () =>
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
 
   return (
     <NotificationContext.Provider

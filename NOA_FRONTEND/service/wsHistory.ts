@@ -17,7 +17,7 @@ export const initHistoryWS = (url: string, onMessage: (data: any) => void) => {
   };
 
   socket.onclose = () => {
-    console.log("❎ WebSocket disconnected");
+    console.log("❎ WebSocket disconnected for History");
   };
 };
 
