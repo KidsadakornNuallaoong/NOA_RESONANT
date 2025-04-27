@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
-import Constants from "expo-constants";
 import { closeHistoryWS, initHistoryWS } from "@/service/wsHistory";
 
 export interface PredictionItem {
@@ -37,16 +36,14 @@ export const PredictionProvider = ({
   children: React.ReactNode;
 }) => {
   const [predictions, setPredictions] = useState<PredictionItem[]>([]);
-  // const wsUri = Constants.expoConfig?.extra?.websocketUrl;
-  const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
+  const wsUri = process.env.EXPO_PUBLIC_WEBSOCKET_URL;
 
   useEffect(() => {
     const setupWS = async () => {
       const token = await getToken();
       if (!token || !wsUri) return;
       const { userID } = jwtDecode<{ userID: string }>(token);
-      // const wsUrl = `${wsUri}/ws/history?userID=${userID}`; // use this one for product
-      const wsUrl = `${wsUri}/ws/history`; // for test
+      const wsUrl = `${wsUri}/ws/history?userID=${userID}`; // use this one
 
       const classIndexMap = {
         Fault: 2,

@@ -1,4 +1,3 @@
-// ✅ NotificationContext.tsx (with improved prediction handling)
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   initNotificationWS,
@@ -6,7 +5,6 @@ import {
 } from "@/service/wsNotificationService";
 import { getToken } from "@/utils/secureStore";
 import { jwtDecode } from "jwt-decode";
-import Constants from "expo-constants";
 
 export interface NotificationItem {
   type: "warning" | "caution" | "success" | "expire";
@@ -29,10 +27,11 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 
 export const useNotifications = (): NotificationContextType => {
   const context = useContext(NotificationContext);
-  if (!context)
+  if (!context) {
     throw new Error(
       "useNotifications must be used within NotificationProvider"
     );
+  }
   return context;
 };
 
@@ -42,19 +41,23 @@ export const useNotificationCount = () => {
   return context.notifications.filter((n) => !n.read).length;
 };
 
-// ✅ Mapping function with Close filtering and max probability logic
+// ✅ Mapping function
 const mapIncomingToNotification = (data: any): NotificationItem | null => {
-  if (data.predictedClass === "Close") return null;
+  // ❌ ไม่เอา Close กับ Normal
+  if (data.predictedClass === "Close" || data.predictedClass === "Normal") {
+    return null;
+  }
 
-  if (data.predictedClass) {
+  // ✅ เอาเฉพาะ Fault
+  if (data.predictedClass === "Fault") {
     const maxProb = Math.max(
       ...(data.result?.map((r: number[]) => r[2]) ?? [0])
     );
 
     return {
-      type: data.predictedClass === "Fault" ? "warning" : "caution",
+      type: "warning", // Fault = warning
       title: "Prediction Alert",
-      message: `Device ${data.deviceID} is predicted as ${data.predictedClass}`,
+      message: `Device ${data.deviceID} is predicted as Fault`,
       details: `Highest Probability: ${maxProb.toFixed(2)}%`,
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -64,6 +67,7 @@ const mapIncomingToNotification = (data: any): NotificationItem | null => {
     };
   }
 
+  // ✅ กรณีข้อความทั่วไป
   return {
     type: data.type || "warning",
     title: data.title || "Notification",
@@ -83,7 +87,7 @@ export const NotificationProvider = ({
   children: React.ReactNode;
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const wsUri = Constants.expoConfig?.extra?.notiSocketUrl;
+  const wsUri = process.env.EXPO_PUBLIC_WEBSOCKET_URL; // WebSocket URL
 
   useEffect(() => {
     const setupWS = async () => {
@@ -91,12 +95,11 @@ export const NotificationProvider = ({
       if (!token || !wsUri) return;
 
       const { userID } = jwtDecode<{ userID: string }>(token);
-      // const wsUrl = `${wsUri}/ws/notificaton?userID=${userID}`; // use this one
-      const wsUrl = `${wsUri}/ws/notificaton`; // for test
+      const wsUrl = `${wsUri}/ws/notification?userID=${userID}`;
 
       initNotificationWS(wsUrl, (incomingData) => {
         const newNoti = mapIncomingToNotification(incomingData);
-        if (!newNoti) return;
+        if (!newNoti) return; // ❌ ถ้า null = ไม่เอาเข้า
         setNotifications((prev) => [newNoti, ...prev]);
       });
     };
