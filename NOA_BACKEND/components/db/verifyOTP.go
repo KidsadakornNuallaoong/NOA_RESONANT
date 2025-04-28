@@ -18,11 +18,11 @@ func VerifyOTP(userID string, otp string) string {
 	defer cancel() // Defer cancel the context
 
 	// Check if user already exists
-	filter := bson.M{"userid": userID}
+	filter := bson.M{"userID": userID}
 
 	// Check if OTP already exists
 	var result struct {
-		UserID string `bson:"userid"`
+		UserID string `bson:"userID"`
 		OTP    string `bson:"otp"`
 	}
 	// Verify the OTP

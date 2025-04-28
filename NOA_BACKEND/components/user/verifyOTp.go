@@ -25,9 +25,17 @@ func VerifyOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle both lowercase and uppercase keys
+	username := userDetails["username"]
+	if username == "" {
+		username = userDetails["Username"]
+	}
 	email := userDetails["email"]
 	if email == "" {
 		email = userDetails["Email"]
+	}
+	password := userDetails["password"]
+	if password == "" {
+		password = userDetails["Password"]
 	}
 	otp := userDetails["otp"]
 	if otp == "" {
@@ -41,7 +49,7 @@ func VerifyOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("User:", user.ID+" "+"Forget Password")
+	log.Println("User:", user.ID+" "+"Verifying OTP")
 
 	// Declare checkOTP and verify the OTP
 	checkOTP := db.VerifyOTP(user.ID, otp)
@@ -54,6 +62,11 @@ func VerifyOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if checkOTP == otp {
 		log.Println("OTP Verified")
+		// Update the user status to verified
+		StoreUser(username, email, password)
+	} else {
+		http.Error(w, "Invalid OTP.", http.StatusUnauthorized)
+		return
 	}
 
 	// Send a response
@@ -64,6 +77,4 @@ func VerifyOTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// Verify the OTP
-
 }
