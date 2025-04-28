@@ -3,11 +3,12 @@ package user
 import (
 	"encoding/json"
 	"net/http"
+
+	"GOLANG_SERVER/components/db"
 )
 
-// SendOTP sends an OTP to the user's email and returns the OTP
-func SendOTP(w http.ResponseWriter, r *http.Request) {
-
+// ForgotPassword sends an OTP to the user's email
+func ForgotPasswordReq(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost { // Allow only POST requests
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -28,19 +29,23 @@ func SendOTP(w http.ResponseWriter, r *http.Request) {
 		email = userDetails["Email"]
 	}
 
-	// Generate OTP
-	otp := GenerateOTP()
-
-	// Send OTP to user's email
-	if err := SendOTPEmail(email, otp); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// Check if user exists
+	_, err := db.ForgotpasswordCheck(email)
+	if err != nil {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
-	} else {
-		SaveOTP(email, otp)
 	}
 
+	// Send OTP to the user's email
+	otp := GenerateOTP()
+	SendOTPEmail(email, otp)
+
+	// save OTP
+	SaveOTP(email, otp)
+
 	// Send a response
-	response := map[string]string{"message": "OTP sent successfully. Please check your email for the OTP.", "OTP": otp}
+	response := map[string]string{"message": "Login successful", "otp": otp}
+
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

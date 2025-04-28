@@ -6,16 +6,13 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // AuthenRequest represents the structure of the request body
 type AuthenRequest struct {
-	Email  string `json:"email"`
-	UserID string `json:"userID"`
-	Pass   string `json:"pass"`
+	Email    string `json:"email"`
+	DeviceID string `json:"DeviceID"`
+	Pass     string `json:"pass"`
 }
 
 // AuthenDevice function to authenticate device
@@ -40,45 +37,61 @@ func AuthenDevice(w http.ResponseWriter, r *http.Request) {
 	if email == "" {
 		email = deviceDetails["Email"]
 	}
-	pass := deviceDetails["pass"]
+	pass := deviceDetails["password"]
 	if pass == "" {
-		pass = deviceDetails["Pass"]
+		pass = deviceDetails["Password"]
 	}
-	userID := deviceDetails["userID"]
-	if userID == "" {
-		userID = deviceDetails["UserID"]
+	deviceID := deviceDetails["deviceID"]
+	if deviceID == "" {
+		deviceID = deviceDetails["DeviceID"]
 	}
 
 	// Check if user exists
 	log.Println("Device authentication started")
-	log.Println("Email: ", email)
-	log.Println("Pass: ", pass)
-	log.Println("UserID: ", userID)
+	// log.Println("Email: ", email)
+	// log.Println("Password: ", pass)
+	// log.Println("DeviceID: ", deviceID)
 
-	// TODO use Email find in the database
-	_, err := db.FindUser(email)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	} else if err == nil {
-		log.Println("User found")
-	}
-
-	// Hash device details
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+	if email == "" || pass == "" || deviceID == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
 
-	deviceHash := bson.M{
-		"email":  email,
-		"pass":   string(hashedPass),
-		"userID": userID,
+	user, err := db.FindUser(email)
+	if err != nil {
+		log.Println("Error finding user:", err)
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
 	}
 
-	log.Println("Device hash: ", deviceHash)
+	// Authenticate the device using the provided email, password, and deviceID
+	if _, err := db.AuthenDevice(email, pass, deviceID); err != nil {
+		log.Println("Error authenticating device:", err)
+		http.Error(w, "Authentication failed", http.StatusUnauthorized)
+		return
+	}
+
+	// deviceHash := bson.M{
+	// 	"email":  email,
+	// 	"pass":   pass,
+	// 	"userID": userID,
+	// }
+
+	// log.Println("Device hash: ", deviceHash)
 	// Calculate the elapsed time
+
+	response := map[string]string{
+		"message": "Device authenticated successfully",
+		"userID":  user.ID,
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Log the elapsed time
 	elapsedTime := time.Since(startTime)
 	log.Printf("Device Authentication time for  %s\n", elapsedTime)
 }
