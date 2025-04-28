@@ -1,4 +1,6 @@
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+import Constants from "expo-constants";
+
+const BASE_URL = Constants.expoConfig?.extra?.apiUrl;
 
 export interface RegisterResponse {
   username: string;

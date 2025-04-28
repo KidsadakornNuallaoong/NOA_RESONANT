@@ -1,8 +1,8 @@
-import React from "react";
-import { Tabs } from "expo-router";
 import TabbarBottom from "@/components/TabBar";
 import { useFonts } from "expo-font";
-import { View, ActivityIndicator } from "react-native";
+import { Tabs } from "expo-router";
+import React from "react";
+import { ActivityIndicator, View } from "react-native";
 
 export default function TabLayout() {
   const [fontsLoaded] = useFonts({
@@ -18,6 +18,7 @@ export default function TabLayout() {
   }
 
   return (
+    
     <Tabs
       screenOptions={{
         headerShown: false,
