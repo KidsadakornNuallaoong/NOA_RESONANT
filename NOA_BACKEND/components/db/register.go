@@ -3,7 +3,10 @@ package db
 import (
 	"context"
 	"errors"
+<<<<<<< HEAD
+=======
 	"log"
+>>>>>>> Final_BN
 	"time"
 
 	env "GOLANG_SERVER/components/env"
@@ -20,6 +23,26 @@ func StoreUser(user schema.User) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)                             // Create a context with timeout
 	defer cancel()                                                                                       // Defer cancel the context
 
+<<<<<<< HEAD
+	// Generate user ID
+	user.ID = generateUserID()
+
+	// Check if user already exists
+	filter := bson.M{"email": user.Email}
+	var result schema.User
+	err := collection.FindOne(ctx, filter).Decode(&result)
+	if err == nil {
+		return false, errors.New("user already exists")
+	} else if err != mongo.ErrNoDocuments { // If error is not "No Documents"
+		return false, err // Return error
+	} else {
+		_, err := collection.InsertOne(ctx, user) // Insert user to collection
+		if err != nil {
+			return false, err
+		}
+	}
+
+=======
 	// userDetails
 	userDetails := bson.M{
 		"username": user.Username,
@@ -43,6 +66,7 @@ func StoreUser(user schema.User) (bool, error) {
 			return false, err // Return error if failed to update
 		}
 	}
+>>>>>>> Final_BN
 	return true, nil
 }
 

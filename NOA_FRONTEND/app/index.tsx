@@ -1,185 +1,35 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useState } from "react";
-import { router, Stack } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, StatusBar, View } from "react-native";
+import { getToken } from "../utils/secureStore";
 
-const IndexScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isloading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+export default function Index() {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await getToken();
 
-  const handleSignIn = async () => {
-    if (!email || !password) {
-      setError("Please fill the information.");
-      return;
-    }
-
-    setError(""); // Clear any previous error
-    setIsLoading(true); // Start loading
-    const API = `${process.env.EXPO_PUBLIC_API_URL}/login`;
-    // const API = `${API_URL}/login`; // Replace
-    // const API = "http://104.214.174.39:8000/login"; // Replace with your API endpoint
-
-    try {
-      const response = await fetch(API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Login successful:", data);
-
-        // Save the token only if "Remember Me" is selected
-        // if (isSelected) {
-        //   await SecureStore.setItemAsync("user_token", data.token);
-        // }
-
-        // Navigate to home screen after successful login
+      if (token) {
+        router.replace("/(tabs)/device");
       } else {
-        setError("Invalid email or password. Please try again.");
+        router.replace("/(auth)/signin");
       }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-      console.error("Sign-in error:", err);
-    } finally {
-      setIsLoading(false); // Stop loading
-    }
-  };
+    };
+
+    checkAuth();
+  }, []);
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.container}>
-        {/* Image */}
-        <View style={styles.headerBackground}>
-          <Image
-            source={require("../assets/images/NOA.png")}
-            style={styles.logo}
-          />
-          <Text style={styles.title}>Noa Resonant</Text>
-        </View>
-        <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={20} style={styles.icon} />
-          <TextInput
-            placeholder="Email"
-            style={styles.inputField}
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="key-outline" size={20} style={styles.icon} />
-          <TextInput
-            placeholder="Password"
-            style={styles.inputField}
-            secureTextEntry={!showPassword} // Toggle password visibility
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color="gray"
-            />
-          </TouchableOpacity>
-        </View>
-        {/* Sign In btn */}
-        <TouchableOpacity
-          style={styles.btn}
-          //   onPress={handleSignIn}
-          //   disabled={isLoading} // Disable the button while loading
-        >
-          {/* <Text style={styles.btnText}>
-            {isLoading ? "Signing In..." : "Sign In"}
-          </Text> */}
-          <Text>btn</Text>
-        </TouchableOpacity>
-      </View>
-    </>
+    
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      
+      <ActivityIndicator size="large" color="#40C375" />
+    </View>
   );
-};
-
-export default IndexScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-  },
-  headerBackground: {
-    marginBottom: 60,
-    // backgroundColor: "#2d2d2d",
-    width: "100%",
-    height: 300,
-    borderBottomLeftRadius: 120,
-    borderBottomRightRadius: 120,
-    overflow: "hidden",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logo: {
-    width: 200,
-    height: 200,
-    resizeMode: "contain",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#A0F5C2",
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderColor: "#d3d3d3",
-    width: "80%",
-    marginBottom: 20,
-  },
-  icon: {
-    marginRight: 10,
-    color: "#888",
-  },
-  inputField: {
-    flex: 1,
-    height: 50,
-    fontSize: 16,
-    color: "#333",
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 10,
-  },
-  btn: {
-    backgroundColor: "#40C375",
-    width: "75%",
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-    marginTop: 80,
-  },
-});
+}

@@ -20,7 +20,11 @@ func HandleGetLatestData(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Get the data from the database
+<<<<<<< HEAD
+		data, err := db.GetGyroDataByDeviceAddressLatest(req.DeviceAddress)
+=======
 		data, err := db.GetGyroDataByDeviceAddressLatest(req.DeviceID)
+>>>>>>> Final_BN
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
