@@ -4,9 +4,17 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+<<<<<<< HEAD
 
 	"GOLANG_SERVER/components/db"
 
+=======
+	"time"
+
+	"GOLANG_SERVER/components/db"
+
+	"github.com/golang-jwt/jwt"
+>>>>>>> Final_BN
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -50,12 +58,61 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+<<<<<<< HEAD
 	// Send a response
 	response := map[string]string{"message": "Login successful"}
+=======
+	log.Println("User logged in successfully:", user.Username, user.ID)
+
+	// Generate a JWT token
+	token, err := GenerateJWT(user.Username, user.ID)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	// log.Println("Generated JWT token:", token)
+
+	// Save ssession data to the database
+
+	// Send a response
+	response := map[string]string{
+		"message": "Login successful",
+		"token":   token,
+	}
+>>>>>>> Final_BN
 	log.Println("User logged in successfully.")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+<<<<<<< HEAD
+=======
+
+}
+
+func GenerateJWT(username, userID string) (string, error) {
+	// Define the secret key (use a secure key in production)
+	secretKey := []byte("User Login") // Replace with your actual secret key
+
+	// Define the claims
+	claims := jwt.MapClaims{
+		"username": username,
+		"userID":   userID,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(), // Token expires in 24 hours
+		"message":  "Login successfully",
+	}
+
+	// Create the token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign the token with the secret key
+	signedToken, err := token.SignedString(secretKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+>>>>>>> Final_BN
 }

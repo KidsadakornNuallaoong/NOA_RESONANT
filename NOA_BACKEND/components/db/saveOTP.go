@@ -17,6 +17,7 @@ func SaveOTP(userID string, otp string) {
 	defer cancel() // Defer cancel the context
 
 	// Check if user already exists
+<<<<<<< HEAD
 	filter := bson.M{"userid": userID}
 
 	log.Println("Querying database with filter:", filter)
@@ -24,6 +25,15 @@ func SaveOTP(userID string, otp string) {
 	// Check if OTP already exists
 	var result struct {
 		UserID string `bson:"userid"`
+=======
+	filter := bson.M{"userID": userID}
+
+	//log.Println("Querying database with filter:", filter)
+
+	// Check if OTP already exists
+	var result struct {
+		UserID string `bson:"userID"`
+>>>>>>> Final_BN
 		OTP    string `bson:"otp"`
 	}
 	if err := collection.FindOne(ctx, filter).Decode(&result); err == nil {
@@ -39,7 +49,11 @@ func SaveOTP(userID string, otp string) {
 	}
 
 	// Save the OTP in the database
+<<<<<<< HEAD
 	_, err := collection.InsertOne(ctx, bson.M{"userid": userID, "otp": otp, "expireAt": time.Now().Add(time.Minute)})
+=======
+	_, err := collection.InsertOne(ctx, bson.M{"userID": userID, "otp": otp, "expireAt": time.Now().Add(time.Minute)})
+>>>>>>> Final_BN
 	if err != nil {
 		log.Println("Error saving OTP:", err)
 		return
@@ -60,13 +74,21 @@ func deleteOTP(userID string) {
 	defer cancel() // Defer cancel the context
 
 	// Check if user already exists
+<<<<<<< HEAD
 	filter := bson.M{"userid": userID}
+=======
+	filter := bson.M{"userID": userID}
+>>>>>>> Final_BN
 
 	log.Println("Querying database with filter:", filter)
 
 	// Check if OTP already exists
 	var result struct {
+<<<<<<< HEAD
 		UserID string `bson:"userid"`
+=======
+		UserID string `bson:"userID"`
+>>>>>>> Final_BN
 		OTP    string `bson:"otp"`
 	}
 	if collection.FindOne(ctx, filter).Decode(&result) == nil {

@@ -3,6 +3,10 @@ package db
 import (
 	"context"
 	"errors"
+<<<<<<< HEAD
+=======
+	"log"
+>>>>>>> Final_BN
 	"time"
 
 	env "GOLANG_SERVER/components/env"
@@ -19,6 +23,7 @@ func StoreUser(user schema.User) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)                             // Create a context with timeout
 	defer cancel()                                                                                       // Defer cancel the context
 
+<<<<<<< HEAD
 	// Generate user ID
 	user.ID = generateUserID()
 
@@ -37,6 +42,31 @@ func StoreUser(user schema.User) (bool, error) {
 		}
 	}
 
+=======
+	// userDetails
+	userDetails := bson.M{
+		"username": user.Username,
+		"email":    user.Email,
+		"password": user.Password,
+	}
+	// Check email in database
+	filter := bson.M{"email": user.Email}
+	// Check if user already exists
+	var result schema.User
+	err := collection.FindOne(ctx, filter).Decode(&result)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return false, err // Return error if not found
+	} else if err != nil {
+		return false, errors.New("email already exists") // Return error if email already exists
+	} else if result.Email == user.Email {
+		log.Println("User updated successfully.")
+		// Update the userDetails in the database
+		_, err := collection.UpdateOne(ctx, filter, bson.M{"$set": userDetails})
+		if err != nil {
+			return false, err // Return error if failed to update
+		}
+	}
+>>>>>>> Final_BN
 	return true, nil
 }
 
